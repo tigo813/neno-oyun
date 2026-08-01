@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.tigo813.twa",
+        "sha256_cert_fingerprints": ["ED:CC:04:9C:99:16:AA:62:67:0E:63:DB:21:D6:06:A0:87:47:F8:62:4B:EE:C1:00:A4:A7:1E:0E:57:56:40:FB"]
+      }
+    }]
