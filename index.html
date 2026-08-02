@@ -1854,15 +1854,13 @@ function renderWorldMap(){
   }
   document.getElementById("jumpBtn").addEventListener("click", () => { sfxTap(); jumpToFrontier(true); });
   document.getElementById("endlessBtn").addEventListener("click", () => {
-    sfxTap();
+    try{ sfxTap(); }catch(e){}
     try{
       wmf.classList.remove("active"); wmf.innerHTML = "";
       startEndlessLevel();
     }catch(err){
-      console.error("Bila Mwisho hatasi:", err);
-      renderWorldMap();
-      const wmf2 = document.getElementById("worldMapFull");
-      showMiniPanel("⚠️ Hitilafu", `<p style="margin:0;">Kuna tatizo: ${String((err && err.message) || err)}</p>`, wmf2 ? wmf2.querySelector(".worldmap-content") : document.body);
+      alert("HATA: " + (err && err.stack ? err.stack : String(err)));
+      try{ renderWorldMap(); }catch(err2){ alert("renderWorldMap de hata: " + String(err2)); }
     }
   });
   setTimeout(() => jumpToFrontier(false), 50);
