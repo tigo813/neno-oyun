@@ -1,6 +1,6 @@
 // Neno — service worker: caches the app shell so it works fully offline
 // (everything — words, art, sounds — is already embedded inside index.html).
-const CACHE_NAME = "neno-cache-v1";
+const CACHE_NAME = "neno-cache-v2";
 const ASSETS = [
   "./index.html",
   "./manifest.json",
