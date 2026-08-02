@@ -25,10 +25,27 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Cache-first: instant loads, always works offline. Falls back to network
-// for anything not pre-cached, and updates the cache as it goes.
+// Network-first for the HTML itself, so new content (new levels, fixes,
+// features) shows up immediately instead of being stuck on an old cached
+// copy. Falls back to cache only when there's no network (offline play).
+// Icons/manifest rarely change, so those stay cache-first for speed.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const isHTML = event.request.mode === "navigate" || event.request.url.endsWith("index.html") || event.request.url.endsWith("/");
+
+  if(isHTML){
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((c) => c || caches.match("./index.html")))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
