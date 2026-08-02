@@ -172,6 +172,12 @@
     background: var(--ocean); color: var(--sand); border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer;
   }
   .jump-btn:hover{ background: var(--ocean-dark); }
+  .endless-btn{
+    display: block; margin: 0 auto 16px; font-family: 'Fraunces', serif; font-size: 14px; font-weight: 700;
+    background: linear-gradient(135deg, var(--kanga-red), var(--gold)); color: white; border: none; border-radius: 22px;
+    padding: 10px 20px; cursor: pointer; box-shadow: 0 6px 16px rgba(179,55,58,0.4);
+  }
+  .endless-btn:hover{ filter: brightness(1.08); }
   @keyframes giftPulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.05); } }
 
   .world-path{ position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 14px 0 8px; max-width: 320px; margin: 0 auto; }
@@ -228,6 +234,26 @@
   /* ---- Game screen: true full-viewport, breaks out of the kanga frame ---- */
   .game-fullscreen{ position: fixed; inset: 0; z-index: 100; display: none; background: var(--ocean-dark); }
   .game-fullscreen.active{ display: block; }
+  .tutorial-overlay{
+    position: absolute; inset: 0; z-index: 50; background: rgba(7,51,56,0.82);
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .tutorial-card{
+    background: var(--sand); border-radius: 16px; padding: 26px 22px 22px; text-align: center;
+    max-width: 320px; box-shadow: 0 20px 50px rgba(0,0,0,0.45); animation: pop 0.3s ease;
+  }
+  .tutorial-anim{ margin-bottom: 16px; }
+  .tutorial-finger{ animation: fingerSlide 1.8s ease-in-out infinite; }
+  @keyframes fingerSlide{
+    0%{ transform: translateX(0); }
+    28%{ transform: translateX(70px); }
+    56%{ transform: translateX(140px); }
+    80%{ transform: translateX(140px); }
+    100%{ transform: translateX(0); }
+  }
+  .tutorial-title{ font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; color: var(--ocean-dark); margin-bottom: 10px; }
+  .tutorial-text{ font-size: 14px; color: var(--ink); margin-bottom: 4px; line-height: 1.4; }
+  .tutorial-sub{ font-size: 12px; color: #5a5044; font-style: italic; margin-bottom: 18px; }
   .game-bg{ position: absolute; inset: 0; z-index: 0; overflow: hidden; }
   .game-bg img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .game-bg .scene-fallback{ position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -260,6 +286,12 @@
   .worldmap-inner{ width: 100%; max-width: 460px; margin: 0 auto; flex: 1; }
 
   .hud{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; font-weight: 700; color: var(--ocean-dark); text-shadow: 0 1px 4px rgba(255,255,255,0.6); }
+  .hud-right{ display: flex; align-items: center; gap: 10px; }
+  .tier-badge{ font-size: 12px; font-weight: 700; background: rgba(217,164,65,0.85); color: var(--ocean-dark); padding: 4px 10px; border-radius: 20px; }
+  .hint-btn{ font-family: 'Work Sans', sans-serif; background: var(--gold); border: none; border-radius: 20px; padding: 4px 11px; font-size: 12px; font-weight: 700; color: var(--ocean-dark); cursor: pointer; text-shadow: none; }
+  .hint-btn:disabled{ opacity: 0.4; cursor: not-allowed; }
+  .score-badge{ font-size: 12px; font-weight: 700; background: rgba(255,255,255,0.14); color: var(--sand); padding: 6px 12px; border-radius: 20px; display: inline-flex; align-items: center; gap: 4px; }
+  .points-earned{ font-size: 14px; font-weight: 700; color: var(--ocean); margin: -8px 0 18px; }
   .hud .back-link{ color: var(--ocean-dark); }
   .word-rows{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px; margin-bottom: 20px; min-height: 60px; }
   .word-row{ display: flex; gap: 5px; }
@@ -267,28 +299,50 @@
   .crossword-grid{ display: grid; gap: 4px; justify-content: center; margin-bottom: 20px; }
   .grid-cell.empty{ background: transparent; border: none; box-shadow: none; }
   .letter-box{
-    border-radius: 6px; background: rgba(255,255,255,0.55); border: 1.5px solid rgba(255,255,255,0.8);
+    border-radius: 6px; background: rgba(255,255,255,0.95); border: 1.5px solid rgba(13,92,99,0.4);
     display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-weight: 700;
-    color: transparent; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.12); box-sizing: border-box;
+    color: transparent; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2); box-sizing: border-box;
   }
   .word-row .letter-box{ width: 40px; height: 44px; font-size: 20px; }
   .grid-cell.letter-box{ width: 100%; height: 100%; }
   .letter-box.filled{ background: var(--ocean); border-color: var(--ocean); color: var(--sand); animation: pop 0.25s ease; }
+  .letter-box.hint-revealed{ background: rgba(217,164,65,0.32); border-color: var(--gold); border-style: dashed; color: var(--ocean-dark); animation: pop 0.25s ease; }
   .word-row.hero .letter-box{ border-color: var(--gold); border-width: 2px; }
   .word-row.hero .letter-box.filled{ background: var(--gold); color: var(--ocean-dark); }
-  @keyframes pop{ 0%{ transform: scale(0.6); } 60%{ transform: scale(1.12); } 100%{ transform: scale(1); } }
+  @keyframes pop{ 0%{ transform: scale(0.6); box-shadow: 0 0 0 6px rgba(217,164,65,0.5); } 60%{ transform: scale(1.14); } 100%{ transform: scale(1); box-shadow: 0 0 0 0 rgba(217,164,65,0); } }
 
   .current-word{ text-align: center; min-height: 30px; margin-bottom: 10px; font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; letter-spacing: 2px; color: var(--ocean-dark); text-shadow: 0 1px 6px rgba(255,255,255,0.7); }
 
   .wheel-wrap{ position: relative; width: 240px; height: 240px; margin: 0 auto; touch-action: none; user-select: none; }
   .wheel-wrap svg{ position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+  #pathLine{ filter: drop-shadow(0 0 5px rgba(217,164,65,0.7)); }
+  #wheelRing.pulse-good{ animation: ringPulseGood 0.55s ease-out; }
+  #wheelRing.pulse-bad{ animation: ringPulseBad 0.45s ease-out; }
+  @keyframes ringPulseGood{
+    0%{ stroke: var(--gold); stroke-width: 3.5; opacity: 1; }
+    60%{ stroke: var(--gold); stroke-width: 7; opacity: 0.85; }
+    100%{ stroke: var(--ocean); stroke-width: 3.5; opacity: 0.9; }
+  }
+  @keyframes ringPulseBad{
+    0%{ stroke: var(--kanga-red); stroke-width: 3.5; opacity: 1; }
+    50%{ stroke: var(--kanga-red); stroke-width: 8; opacity: 0.95; }
+    100%{ stroke: var(--ocean); stroke-width: 3.5; opacity: 0.9; }
+  }
   .letter{
     position: absolute; width: 50px; height: 50px; margin-left: -25px; margin-top: -25px; border-radius: 50%;
-    background: rgba(255,255,255,0.88); border: 2.5px solid var(--ocean); display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 32% 28%, rgba(255,255,255,1), rgba(255,255,255,0.82) 55%, rgba(240,236,224,0.88) 100%);
+    border: 2.5px solid var(--ocean); display: flex; align-items: center; justify-content: center;
     font-family: 'Fraunces', serif; font-weight: 700; font-size: 20px; color: var(--ocean-dark);
-    cursor: pointer; transition: background 0.1s ease, color 0.1s ease, transform 0.1s ease; box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+    cursor: pointer; transition: background 0.12s ease, color 0.12s ease, transform 0.12s cubic-bezier(.34,1.56,.64,1), box-shadow 0.12s ease;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.18), inset 0 -3px 4px rgba(0,0,0,0.06), inset 0 2px 2px rgba(255,255,255,0.9);
+    animation: letterIn 0.32s cubic-bezier(.34,1.56,.64,1) backwards;
+    animation-delay: calc(var(--i, 0) * 35ms);
   }
-  .letter.selected{ background: var(--kanga-red); color: white; border-color: var(--kanga-red); transform: scale(1.1); }
+  @keyframes letterIn{ 0%{ transform: scale(0.2); opacity: 0; } 100%{ transform: scale(1); opacity: 1; } }
+  .letter.selected{
+    background: radial-gradient(circle at 32% 28%, #e0555a, var(--kanga-red) 65%); color: white; border-color: var(--kanga-red);
+    transform: scale(1.16); box-shadow: 0 4px 14px rgba(179,55,58,0.5), inset 0 2px 3px rgba(255,255,255,0.35);
+  }
 
   .controls{ display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
   .ctrl-btn{
@@ -300,7 +354,38 @@
   .shake{ animation: shake 0.35s ease; }
   @keyframes shake{ 0%,100%{ transform: translateX(0); } 25%{ transform: translateX(-6px); } 75%{ transform: translateX(6px); } }
 
-  .end-screen{ text-align: center; padding-top: 20px; }
+  .end-screen{ text-align: center; padding-top: 20px; position: relative; }
+  .confetti-burst{ position: absolute; top: 30%; left: 50%; width: 0; height: 0; pointer-events: none; }
+  .word-banner{
+    position: absolute; top: 30%; left: 50%; transform: translate(-50%,-50%) scale(0.3);
+    background: var(--kanga-red); color: #fff; font-family: 'Fraunces', serif; font-weight: 700;
+    font-size: 20px; padding: 9px 26px; border-radius: 6px; border: 3px solid var(--gold);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35); z-index: 60; pointer-events: none;
+    text-align: center; white-space: nowrap; opacity: 0;
+    animation: bannerPop 1.1s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .word-banner::before, .word-banner::after{
+    content: ""; position: absolute; top: 0; width: 0; height: 0; border-top: 22px solid var(--kanga-red);
+  }
+  .word-banner::before{ left: -15px; border-right: 15px solid transparent; }
+  .word-banner::after{ right: -15px; border-left: 15px solid transparent; }
+  .word-banner.combo{ font-size: 25px; background: var(--gold); color: var(--ocean-dark); border-color: var(--kanga-red); }
+  .word-banner.combo::before, .word-banner.combo::after{ border-top-color: var(--gold); }
+  @keyframes bannerPop{
+    0%{ transform: translate(-50%,-50%) scale(0.3); opacity: 0; }
+    18%{ transform: translate(-50%,-50%) scale(1.12); opacity: 1; }
+    30%{ transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    78%{ transform: translate(-50%,-50%) scale(1); opacity: 1; }
+    100%{ transform: translate(-50%,-60%) scale(0.85); opacity: 0; }
+  }
+  .confetti-piece{
+    position: absolute; top: 0; left: 0; width: 8px; height: 8px; border-radius: 2px;
+    animation: confettiFly 1.1s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes confettiFly{
+    0%{ transform: translate(0,0) rotate(0deg); opacity: 1; }
+    100%{ transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
+  }
   .end-screen .big{ font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ocean-dark); margin-bottom: 4px; }
   .end-screen .sub{ font-size: 13px; color: #5a5044; margin-bottom: 12px; }
   .stars-earned{ font-size: 32px; letter-spacing: 6px; color: var(--gold); margin-bottom: 18px; }
@@ -330,12 +415,33 @@
 const WORLDS = [
   { id:"salamu", name:"Salamu", icon:"👋", accent:"#0D5C63",
     levels:[
+      { hero:"POLE", words:["POLE"], hint:"😔" },
+      { hero:"SAWA", words:["SAWA"], hint:"👍" },
+      { hero:"HODI", words:["HODI"], hint:"🚪" },
       { hero:"JAMBO", words:["JAMBO"], hint:"👋" },
-      { hero:"ASANTE", words:["ASANTE","SAA","TAA"], hint:"🙏",
+      { hero:"NDIYO", words:["NDIYO"], hint:"✅" },
+      { hero:"NZURI", words:["NZURI"], hint:"😊" },
+      { hero:"HAPANA", words:["HAPANA"], hint:"❌" },
+      { hero:"VIZURI", words:["VIZURI"], hint:"👌" },
+      { hero:"MATATA", words:["MATATA"], hint:"😅" },
+      { hero:"KWAHERI", words:["KWAHERI"], hint:"🚶" },
+      { hero:"TAFADHALI", words:["TAFADHALI"], hint:"🥺" },
+      { hero:"ASANTE", words:["ASANTE","TAA"], hint:"🙏",
         grid:[
           {word:"ASANTE", row:0, col:0, dir:"H"},
-          {word:"SAA", row:0, col:1, dir:"V"},
           {word:"TAA", row:0, col:4, dir:"V"}
+        ]},
+      { hero:"HABARI", words:["HABARI","RIBA","ARI"], hint:"💬",
+        grid:[
+          {word:"HABARI", row:0, col:0, dir:"H"},
+          {word:"RIBA", row:0, col:4, dir:"V"},
+          {word:"ARI", row:0, col:1, dir:"V"}
+        ]},
+      { hero:"HAKUNA", words:["HAKUNA","KAA","UA"], hint:"🚫",
+        grid:[
+          {word:"HAKUNA", row:0, col:0, dir:"H"},
+          {word:"KAA", row:0, col:2, dir:"V"},
+          {word:"UA", row:0, col:3, dir:"V"}
         ]},
       { hero:"KARIBU", words:["KARIBU","BAKI","RIBA","ARI","UA"], hint:"🤗",
         grid:[
@@ -345,30 +451,14 @@ const WORLDS = [
           {word:"ARI", row:0, col:1, dir:"V"},
           {word:"UA", row:0, col:5, dir:"V"}
         ]},
-      { hero:"KWAHERI", words:["KWAHERI"], hint:"🚶" },
-      { hero:"TAFADHALI", words:["TAFADHALI"], hint:"🥺" },
-      { hero:"HABARI", words:["HABARI","RIBA","ARI"], hint:"💬",
-        grid:[
-          {word:"HABARI", row:0, col:0, dir:"H"},
-          {word:"RIBA", row:0, col:4, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"POLE", words:["POLE"], hint:"😔" },
-      { hero:"SAWA", words:["SAWA"], hint:"👍" },
-      { hero:"HODI", words:["HODI"], hint:"🚪" },
-      { hero:"NDIYO", words:["NDIYO"], hint:"✅" },
-      { hero:"HAPANA", words:["HAPANA"], hint:"❌" },
-      { hero:"SAMAHANI", words:["SAMAHANI","SAHANI","AMANI","SIMA","MIA","SAA"], hint:"🙇",
+      { hero:"SAMAHANI", words:["SAMAHANI","SAHANI","AMANI","SIMA","SAA"], hint:"🙇",
         grid:[
           {word:"SAMAHANI", row:0, col:0, dir:"H"},
           {word:"SAHANI", row:0, col:0, dir:"V"},
           {word:"AMANI", row:0, col:1, dir:"V"},
           {word:"SIMA", row:-1, col:7, dir:"V"},
-          {word:"MIA", row:0, col:2, dir:"V"},
           {word:"SAA", row:-1, col:3, dir:"V"}
         ]},
-      { hero:"NZURI", words:["NZURI"], hint:"😊" },
-      { hero:"VIZURI", words:["VIZURI"], hint:"👌" },
       { hero:"SIJAMBO", words:["SIJAMBO","JAMBO","SIMBA","BASI","MAJI","MOJA","SIMA"], hint:"🙂",
         grid:[
           {word:"SIJAMBO", row:0, col:0, dir:"H"},
@@ -378,46 +468,60 @@ const WORLDS = [
           {word:"MAJI", row:0, col:4, dir:"V"},
           {word:"MOJA", row:-1, col:6, dir:"V"},
           {word:"SIMA", row:-1, col:1, dir:"V"}
-        ]},
-      { hero:"HAKUNA", words:["HAKUNA","KAA","UA"], hint:"🚫",
-        grid:[
-          {word:"HAKUNA", row:0, col:0, dir:"H"},
-          {word:"KAA", row:0, col:2, dir:"V"},
-          {word:"UA", row:0, col:3, dir:"V"}
-        ]},
-      { hero:"MATATA", words:["MATATA"], hint:"😅" }
+        ]}
     ]},
   { id:"familia", name:"Familia", icon:"👨‍👩‍👧", accent:"#B3373A",
     levels:[
+      { hero:"MKE", words:["MKE"], hint:"👰" },
       { hero:"MAMA", words:["MAMA"], hint:"👩" },
       { hero:"BABA", words:["BABA"], hint:"👨" },
       { hero:"KAKA", words:["KAKA"], hint:"👦" },
       { hero:"DADA", words:["DADA"], hint:"👧" },
-      { hero:"RAFIKI", words:["RAFIKI"], hint:"🤝" },
       { hero:"BABU", words:["BABU"], hint:"👴" },
       { hero:"BIBI", words:["BIBI"], hint:"👵" },
+      { hero:"MPWA", words:["MPWA"], hint:"👶" },
+      { hero:"MUME", words:["MUME"], hint:"🤵" },
       { hero:"MTOTO", words:["MTOTO"], hint:"👶" },
       { hero:"NDUGU", words:["NDUGU"], hint:"🧑‍🤝‍🧑" },
+      { hero:"BINTI", words:["BINTI"], hint:"👩‍🦱" },
+      { hero:"MWANA", words:["MWANA"], hint:"🧒" },
+      { hero:"RAFIKI", words:["RAFIKI"], hint:"🤝" },
       { hero:"MJOMBA", words:["MJOMBA","JAMBO","MOJA"], hint:"🧔",
         grid:[
           {word:"MJOMBA", row:0, col:0, dir:"H"},
           {word:"JAMBO", row:0, col:1, dir:"V"},
           {word:"MOJA", row:0, col:0, dir:"V"}
         ]},
-      { hero:"SHANGAZI", words:["SHANGAZI","SAHANI","SAA"], hint:"👩‍🦳",
+      { hero:"SHANGAZI", words:["SHANGAZI","SAHANI"], hint:"👩‍🦳",
         grid:[
           {word:"SHANGAZI", row:0, col:0, dir:"H"},
-          {word:"SAHANI", row:0, col:0, dir:"V"},
-          {word:"SAA", row:-1, col:2, dir:"V"}
-        ]},
-      { hero:"MPWA", words:["MPWA"], hint:"👶" },
-      { hero:"BINTI", words:["BINTI"], hint:"👩‍🦱" },
-      { hero:"MWANA", words:["MWANA"], hint:"🧒" },
-      { hero:"MUME", words:["MUME"], hint:"🤵" },
-      { hero:"MKE", words:["MKE"], hint:"👰" }
+          {word:"SAHANI", row:0, col:0, dir:"V"}
+        ]}
     ]},
   { id:"wanyama", name:"Wanyama", icon:"🦁", accent:"#D9A441",
     levels:[
+      { hero:"NGE", words:["NGE"], hint:"🦂" },
+      { hero:"CHUI", words:["CHUI"], hint:"🐆" },
+      { hero:"PAKA", words:["PAKA"], hint:"🐱" },
+      { hero:"MBWA", words:["MBWA"], hint:"🐶" },
+      { hero:"KOBE", words:["KOBE"], hint:"🐢" },
+      { hero:"KUKU", words:["KUKU"], hint:"🐔" },
+      { hero:"FISI", words:["FISI"], hint:"🐺" },
+      { hero:"TEMBO", words:["TEMBO"], hint:"🐘" },
+      { hero:"TWIGA", words:["TWIGA"], hint:"🦒" },
+      { hero:"NYOKA", words:["NYOKA"], hint:"🐍" },
+      { hero:"NYATI", words:["NYATI"], hint:"🐃" },
+      { hero:"NYANI", words:["NYANI"], hint:"🐒" },
+      { hero:"CHURA", words:["CHURA"], hint:"🐸" },
+      { hero:"PANYA", words:["PANYA"], hint:"🐭" },
+      { hero:"SUNGURA", words:["SUNGURA"], hint:"🐰" },
+      { hero:"NGURUWE", words:["NGURUWE"], hint:"🐖" },
+      { hero:"SWALA", words:["SWALA","SAWA","SAA"], hint:"🦌",
+        grid:[
+          {word:"SWALA", row:0, col:0, dir:"H"},
+          {word:"SAWA", row:0, col:0, dir:"V"},
+          {word:"SAA", row:-1, col:2, dir:"V"}
+        ]},
       { hero:"SIMBA", words:["SIMBA","BASI","SIMA","MIA"], hint:"🦁",
         grid:[
           {word:"SIMBA", row:0, col:0, dir:"H"},
@@ -425,87 +529,65 @@ const WORLDS = [
           {word:"SIMA", row:0, col:0, dir:"V"},
           {word:"MIA", row:0, col:2, dir:"V"}
         ]},
-      { hero:"TEMBO", words:["TEMBO"], hint:"🐘" },
-      { hero:"TWIGA", words:["TWIGA"], hint:"🦒" },
-      { hero:"CHUI", words:["CHUI"], hint:"🐆" },
-      { hero:"SAMAKI", words:["SAMAKI","SIMA","KAA","MIA","SAA"], hint:"🐟",
+      { hero:"SAMAKI", words:["SAMAKI","SIMA","KAA","SAA"], hint:"🐟",
         grid:[
           {word:"SAMAKI", row:0, col:0, dir:"H"},
           {word:"SIMA", row:0, col:0, dir:"V"},
           {word:"KAA", row:0, col:4, dir:"V"},
-          {word:"MIA", row:0, col:2, dir:"V"},
           {word:"SAA", row:-1, col:1, dir:"V"}
-        ]},
-      { hero:"PAKA", words:["PAKA"], hint:"🐱" },
-      { hero:"MBWA", words:["MBWA"], hint:"🐶" },
-      { hero:"NYOKA", words:["NYOKA"], hint:"🐍" },
-      { hero:"KOBE", words:["KOBE"], hint:"🐢" },
-      { hero:"SUNGURA", words:["SUNGURA"], hint:"🐰" },
-      { hero:"NYATI", words:["NYATI"], hint:"🐃" },
-      { hero:"KUKU", words:["KUKU"], hint:"🐔" },
-      { hero:"NGURUWE", words:["NGURUWE"], hint:"🐖" },
-      { hero:"FISI", words:["FISI"], hint:"🐺" },
-      { hero:"NYANI", words:["NYANI"], hint:"🐒" },
-      { hero:"CHURA", words:["CHURA"], hint:"🐸" },
-      { hero:"PANYA", words:["PANYA"], hint:"🐭" },
-      { hero:"SWALA", words:["SWALA","SAWA","SAA"], hint:"🦌",
-        grid:[
-          {word:"SWALA", row:0, col:0, dir:"H"},
-          {word:"SAWA", row:0, col:0, dir:"V"},
-          {word:"SAA", row:-1, col:2, dir:"V"}
-        ]},
-      { hero:"NGE", words:["NGE"], hint:"🦂" }
+        ]}
     ]},
   { id:"chakula", name:"Chakula", icon:"🍲", accent:"#8a7f6c",
     levels:[
+      { hero:"CHAI", words:["CHAI"], hint:"🍵" },
+      { hero:"MAJI", words:["MAJI"], hint:"💧" },
+      { hero:"WALI", words:["WALI"], hint:"🍚" },
+      { hero:"EMBE", words:["EMBE"], hint:"🥭" },
       { hero:"UGALI", words:["UGALI"], hint:"🍚" },
       { hero:"NDIZI", words:["NDIZI"], hint:"🍌" },
-      { hero:"CHAI", words:["CHAI"], hint:"🍵" },
       { hero:"MKATE", words:["MKATE"], hint:"🍞" },
-      { hero:"SUKARI", words:["SUKARI","SIKU","ARI","UA"], hint:"🍯",
+      { hero:"NYAMA", words:["NYAMA"], hint:"🥩" },
+      { hero:"MAYAI", words:["MAYAI"], hint:"🥚" },
+      { hero:"ASALI", words:["ASALI"], hint:"🍯" },
+      { hero:"TANGO", words:["TANGO"], hint:"🥒" },
+      { hero:"NDIMU", words:["NDIMU"], hint:"🍋" },
+      { hero:"CHUMVI", words:["CHUMVI"], hint:"🧂" },
+      { hero:"MTINDI", words:["MTINDI"], hint:"🥛" },
+      { hero:"NYANYA", words:["NYANYA"], hint:"🍅" },
+      { hero:"PILIPILI", words:["PILIPILI"], hint:"🌶️" },
+      { hero:"VITUNGUU", words:["VITUNGUU"], hint:"🧅" },
+      { hero:"SUKARI", words:["SUKARI","SIKU","UA"], hint:"🍯",
         grid:[
           {word:"SUKARI", row:0, col:0, dir:"H"},
           {word:"SIKU", row:0, col:0, dir:"V"},
-          {word:"ARI", row:0, col:3, dir:"V"},
           {word:"UA", row:0, col:1, dir:"V"}
         ]},
-      { hero:"MAJI", words:["MAJI"], hint:"💧" },
-      { hero:"NYAMA", words:["NYAMA"], hint:"🥩" },
-      { hero:"WALI", words:["WALI"], hint:"🍚" },
-      { hero:"MAYAI", words:["MAYAI"], hint:"🥚" },
-      { hero:"ASALI", words:["ASALI"], hint:"🍯" },
-      { hero:"CHUMVI", words:["CHUMVI"], hint:"🧂" },
-      { hero:"PILIPILI", words:["PILIPILI"], hint:"🌶️" },
-      { hero:"MTINDI", words:["MTINDI"], hint:"🥛" },
-      { hero:"TANGO", words:["TANGO"], hint:"🥒" },
-      { hero:"NYANYA", words:["NYANYA"], hint:"🍅" },
-      { hero:"VITUNGUU", words:["VITUNGUU"], hint:"🧅" },
-      { hero:"EMBE", words:["EMBE"], hint:"🥭" },
       { hero:"PARACHICHI", words:["PARACHICHI","CHAI","ARI"], hint:"🥑",
         grid:[
           {word:"PARACHICHI", row:0, col:0, dir:"H"},
           {word:"CHAI", row:0, col:4, dir:"V"},
           {word:"ARI", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"NDIMU", words:["NDIMU"], hint:"🍋" }
+        ]}
     ]},
   { id:"namba", name:"Namba", icon:"🔢", accent:"#0D5C63",
     levels:[
+      { hero:"NNE", words:["NNE"], hint:"4️⃣" },
       { hero:"MOJA", words:["MOJA"], hint:"1️⃣" },
       { hero:"TATU", words:["TATU"], hint:"3️⃣" },
       { hero:"TANO", words:["TANO"], hint:"5️⃣" },
       { hero:"SABA", words:["SABA"], hint:"7️⃣" },
       { hero:"KUMI", words:["KUMI"], hint:"🔟" },
-      { hero:"MBILI", words:["MBILI"], hint:"2️⃣" },
-      { hero:"NNE", words:["NNE"], hint:"4️⃣" },
       { hero:"SITA", words:["SITA"], hint:"6️⃣" },
       { hero:"NANE", words:["NANE"], hint:"8️⃣" },
-      { hero:"TISA", words:["TISA"], hint:"9️⃣" }
+      { hero:"TISA", words:["TISA"], hint:"9️⃣" },
+      { hero:"MBILI", words:["MBILI"], hint:"2️⃣" }
     ]},
   { id:"rangi", name:"Rangi", icon:"🎨", accent:"#B3373A",
     levels:[
+      { hero:"BULUU", words:["BULUU"], hint:"🔵" },
       { hero:"NYEUPE", words:["NYEUPE"], hint:"⚪" },
       { hero:"NYEUSI", words:["NYEUSI"], hint:"⚫" },
+      { hero:"KAHAWIA", words:["KAHAWIA"], hint:"🟤" },
       { hero:"NYEKUNDU", words:["NYEKUNDU"], hint:"🔴" },
       { hero:"KIJANI", words:["KIJANI","JANI","NJIA"], hint:"🟢",
         grid:[
@@ -518,16 +600,23 @@ const WORLDS = [
           {word:"MANJANO", row:0, col:0, dir:"H"},
           {word:"JANA", row:0, col:3, dir:"V"},
           {word:"MOJA", row:0, col:0, dir:"V"}
-        ]},
-      { hero:"BULUU", words:["BULUU"], hint:"🔵" },
-      { hero:"KAHAWIA", words:["KAHAWIA"], hint:"🟤" }
+        ]}
     ]},
   { id:"mwili", name:"Mwili", icon:"🧍", accent:"#D9A441",
     levels:[
+      { hero:"PUA", words:["PUA"], hint:"👃" },
+      { hero:"MGUU", words:["MGUU"], hint:"🦵" },
+      { hero:"MENO", words:["MENO"], hint:"🦷" },
+      { hero:"BEGA", words:["BEGA"], hint:"💪" },
       { hero:"JICHO", words:["JICHO"], hint:"👁️" },
       { hero:"MKONO", words:["MKONO"], hint:"✋" },
-      { hero:"MGUU", words:["MGUU"], hint:"🦵" },
+      { hero:"MDOMO", words:["MDOMO"], hint:"👄" },
+      { hero:"TUMBO", words:["TUMBO"], hint:"🫃" },
+      { hero:"KIFUA", words:["KIFUA"], hint:"🫁" },
       { hero:"KICHWA", words:["KICHWA"], hint:"🙂" },
+      { hero:"NYWELE", words:["NYWELE"], hint:"💇" },
+      { hero:"SHINGO", words:["SHINGO"], hint:"👔" },
+      { hero:"KIDOLE", words:["KIDOLE"], hint:"👆" },
       { hero:"MASIKIO", words:["MASIKIO","SIKIO","SIMA","MIA","SIO"], hint:"👂",
         grid:[
           {word:"MASIKIO", row:0, col:0, dir:"H"},
@@ -535,82 +624,77 @@ const WORLDS = [
           {word:"SIMA", row:-1, col:3, dir:"V"},
           {word:"MIA", row:0, col:0, dir:"V"},
           {word:"SIO", row:-1, col:5, dir:"V"}
-        ]},
-      { hero:"PUA", words:["PUA"], hint:"👃" },
-      { hero:"MDOMO", words:["MDOMO"], hint:"👄" },
-      { hero:"MENO", words:["MENO"], hint:"🦷" },
-      { hero:"NYWELE", words:["NYWELE"], hint:"💇" },
-      { hero:"TUMBO", words:["TUMBO"], hint:"🫃" },
-      { hero:"SHINGO", words:["SHINGO"], hint:"👔" },
-      { hero:"BEGA", words:["BEGA"], hint:"💪" },
-      { hero:"KIDOLE", words:["KIDOLE"], hint:"👆" },
-      { hero:"KIFUA", words:["KIFUA"], hint:"🫁" }
+        ]}
     ]},
   { id:"anga", name:"Anga", icon:"🌤️", accent:"#8a7f6c",
     levels:[
       { hero:"JUA", words:["JUA"], hint:"☀️" },
       { hero:"MVUA", words:["MVUA"], hint:"🌧️" },
+      { hero:"RADI", words:["RADI"], hint:"⚡" },
+      { hero:"JOTO", words:["JOTO"], hint:"🔥" },
       { hero:"UPEPO", words:["UPEPO"], hint:"💨" },
       { hero:"MWEZI", words:["MWEZI"], hint:"🌙" },
       { hero:"NYOTA", words:["NYOTA"], hint:"⭐" },
-      { hero:"MAWINGU", words:["MAWINGU","MIA","UA"], hint:"☁️",
+      { hero:"BARAFU", words:["BARAFU","BAFU"], hint:"🧊",
+        grid:[
+          {word:"BARAFU", row:0, col:0, dir:"H"},
+          {word:"BAFU", row:0, col:0, dir:"V"}
+        ]},
+      { hero:"MAWINGU", words:["MAWINGU","MIA"], hint:"☁️",
         grid:[
           {word:"MAWINGU", row:0, col:0, dir:"H"},
-          {word:"MIA", row:0, col:0, dir:"V"},
-          {word:"UA", row:0, col:6, dir:"V"}
+          {word:"MIA", row:0, col:0, dir:"V"}
         ]},
-      { hero:"RADI", words:["RADI"], hint:"⚡" },
       { hero:"ULIMWENGU", words:["ULIMWENGU","MGUU","NGE"], hint:"🌍",
         grid:[
           {word:"ULIMWENGU", row:0, col:0, dir:"H"},
           {word:"MGUU", row:0, col:3, dir:"V"},
           {word:"NGE", row:0, col:6, dir:"V"}
         ]},
-      { hero:"BARAFU", words:["BARAFU","BAFU","UA"], hint:"🧊",
-        grid:[
-          {word:"BARAFU", row:0, col:0, dir:"H"},
-          {word:"BAFU", row:0, col:0, dir:"V"},
-          {word:"UA", row:0, col:5, dir:"V"}
-        ]},
-      { hero:"JOTO", words:["JOTO"], hint:"🔥" },
-      { hero:"BARIDI", words:["BARIDI","RADI","RIBA","ARI"], hint:"❄️",
+      { hero:"BARIDI", words:["BARIDI","RADI","RIBA"], hint:"❄️",
         grid:[
           {word:"BARIDI", row:0, col:0, dir:"H"},
           {word:"RADI", row:0, col:2, dir:"V"},
-          {word:"RIBA", row:-1, col:3, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
+          {word:"RIBA", row:-1, col:3, dir:"V"}
         ]}
     ]},
   { id:"miji", name:"Miji", icon:"🏙️", accent:"#0D5C63",
     levels:[
-      { hero:"ZANZIBAR", words:["ZANZIBAR","RIBA","ARI"], hint:"🏝️",
+      { hero:"TANGA", words:["TANGA"], hint:"🌆" },
+      { hero:"MOSHI", words:["MOSHI"], hint:"🌆" },
+      { hero:"LINDI", words:["LINDI"], hint:"🌆" },
+      { hero:"GEITA", words:["GEITA"], hint:"🌆" },
+      { hero:"DODOMA", words:["DODOMA"], hint:"🏛️" },
+      { hero:"MWANZA", words:["MWANZA"], hint:"🌆" },
+      { hero:"TABORA", words:["TABORA"], hint:"🌆" },
+      { hero:"MTWARA", words:["MTWARA"], hint:"🌆" },
+      { hero:"SINGIDA", words:["SINGIDA"], hint:"🌆" },
+      { hero:"ARUSHA", words:["ARUSHA","SAA"], hint:"⛰️",
+        grid:[
+          {word:"ARUSHA", row:0, col:0, dir:"H"},
+          {word:"SAA", row:0, col:3, dir:"V"}
+        ]},
+      { hero:"IRINGA", words:["IRINGA","GARI"], hint:"🌆",
+        grid:[
+          {word:"IRINGA", row:0, col:0, dir:"H"},
+          {word:"GARI", row:0, col:4, dir:"V"}
+        ]},
+      { hero:"NAIROBI", words:["NAIROBI","RIBA"], hint:"🏙️",
+        grid:[
+          {word:"NAIROBI", row:0, col:0, dir:"H"},
+          {word:"RIBA", row:0, col:3, dir:"V"}
+        ]},
+      { hero:"ZANZIBAR", words:["ZANZIBAR","RIBA"], hint:"🏝️",
         grid:[
           {word:"ZANZIBAR", row:0, col:0, dir:"H"},
-          {word:"RIBA", row:0, col:7, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
+          {word:"RIBA", row:0, col:7, dir:"V"}
         ]},
-      { hero:"MOMBASA", words:["MOMBASA","MAMA","SABA","SAA"], hint:"🌊",
+      { hero:"MOMBASA", words:["MOMBASA","MAMA","SABA"], hint:"🌊",
         grid:[
           {word:"MOMBASA", row:0, col:0, dir:"H"},
           {word:"MAMA", row:0, col:0, dir:"V"},
-          {word:"SABA", row:0, col:5, dir:"V"},
-          {word:"SAA", row:-1, col:4, dir:"V"}
+          {word:"SABA", row:0, col:5, dir:"V"}
         ]},
-      { hero:"ARUSHA", words:["ARUSHA","SAA","UA"], hint:"⛰️",
-        grid:[
-          {word:"ARUSHA", row:0, col:0, dir:"H"},
-          {word:"SAA", row:0, col:3, dir:"V"},
-          {word:"UA", row:0, col:2, dir:"V"}
-        ]},
-      { hero:"NAIROBI", words:["NAIROBI","RIBA","ARI"], hint:"🏙️",
-        grid:[
-          {word:"NAIROBI", row:0, col:0, dir:"H"},
-          {word:"RIBA", row:0, col:3, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"DODOMA", words:["DODOMA"], hint:"🏛️" },
-      { hero:"TANGA", words:["TANGA"], hint:"🌆" },
-      { hero:"MWANZA", words:["MWANZA"], hint:"🌆" },
       { hero:"KISUMU", words:["KISUMU","USIKU","KUMI","SIKU","SIMU"], hint:"🌆",
         grid:[
           {word:"KISUMU", row:0, col:0, dir:"H"},
@@ -618,104 +702,83 @@ const WORLDS = [
           {word:"KUMI", row:0, col:0, dir:"V"},
           {word:"SIKU", row:0, col:2, dir:"V"},
           {word:"SIMU", row:-1, col:1, dir:"V"}
-        ]},
-      { hero:"MOSHI", words:["MOSHI"], hint:"🌆" },
-      { hero:"IRINGA", words:["IRINGA","GARI","ARI"], hint:"🌆",
-        grid:[
-          {word:"IRINGA", row:0, col:0, dir:"H"},
-          {word:"GARI", row:0, col:4, dir:"V"},
-          {word:"ARI", row:0, col:5, dir:"V"}
-        ]},
-      { hero:"TABORA", words:["TABORA"], hint:"🌆" },
-      { hero:"MTWARA", words:["MTWARA"], hint:"🌆" },
-      { hero:"SINGIDA", words:["SINGIDA"], hint:"🌆" },
-      { hero:"LINDI", words:["LINDI"], hint:"🌆" },
-      { hero:"GEITA", words:["GEITA"], hint:"🌆" }
+        ]}
     ]},
   { id:"mapenzi", name:"Mapenzi", icon:"💕", accent:"#B3373A",
     levels:[
-      { hero:"PENZI", words:["PENZI"], hint:"❤️" },
-      { hero:"MPENZI", words:["MPENZI"], hint:"💑" },
       { hero:"MOYO", words:["MOYO"], hint:"💓" },
       { hero:"BUSU", words:["BUSU"], hint:"💋" },
-      { hero:"HARUSI", words:["HARUSI","ARI","UA"], hint:"💍",
+      { hero:"PENZI", words:["PENZI"], hint:"❤️" },
+      { hero:"MPENZI", words:["MPENZI"], hint:"💑" },
+      { hero:"UPENDO", words:["UPENDO"], hint:"💞" },
+      { hero:"HARUSI", words:["HARUSI","ARI"], hint:"💍",
         grid:[
           {word:"HARUSI", row:0, col:0, dir:"H"},
-          {word:"ARI", row:0, col:1, dir:"V"},
-          {word:"UA", row:0, col:3, dir:"V"}
+          {word:"ARI", row:0, col:1, dir:"V"}
         ]},
-      { hero:"UPENDO", words:["UPENDO"], hint:"💞" },
-      { hero:"TUMAINI", words:["TUMAINI","TIMU","MIA","MTI","UA"], hint:"🌈",
+      { hero:"TUMAINI", words:["TUMAINI","TIMU","MIA","MTI"], hint:"🌈",
         grid:[
           {word:"TUMAINI", row:0, col:0, dir:"H"},
           {word:"TIMU", row:0, col:0, dir:"V"},
           {word:"MIA", row:0, col:2, dir:"V"},
-          {word:"MTI", row:-2, col:4, dir:"V"},
-          {word:"UA", row:0, col:1, dir:"V"}
+          {word:"MTI", row:-2, col:4, dir:"V"}
         ]}
     ]},
   { id:"vitu", name:"Vitu", icon:"🪑", accent:"#D9A441",
     levels:[
+      { hero:"TAA", words:["TAA"], hint:"💡" },
       { hero:"MEZA", words:["MEZA"], hint:"🍽️" },
       { hero:"KITI", words:["KITI"], hint:"🪑" },
+      { hero:"BEGI", words:["BEGI"], hint:"🎒" },
+      { hero:"KIOO", words:["KIOO"], hint:"🪞" },
+      { hero:"MLANGO", words:["MLANGO"], hint:"🚪" },
+      { hero:"SAHANI", words:["SAHANI"], hint:"🍽️" },
+      { hero:"UFAGIO", words:["UFAGIO"], hint:"🧹" },
+      { hero:"UFUNGUO", words:["UFUNGUO"], hint:"🔑" },
       { hero:"KITANDA", words:["KITANDA","KAA","TAA"], hint:"🛏️",
         grid:[
           {word:"KITANDA", row:0, col:0, dir:"H"},
           {word:"KAA", row:0, col:0, dir:"V"},
           {word:"TAA", row:0, col:2, dir:"V"}
         ]},
-      { hero:"MLANGO", words:["MLANGO"], hint:"🚪" },
       { hero:"DIRISHA", words:["DIRISHA","RADI","ARI"], hint:"🪟",
         grid:[
           {word:"DIRISHA", row:0, col:0, dir:"H"},
           {word:"RADI", row:0, col:2, dir:"V"},
           {word:"ARI", row:0, col:6, dir:"V"}
         ]},
-      { hero:"SAHANI", words:["SAHANI"], hint:"🍽️" },
       { hero:"KIKOMBE", words:["KIKOMBE","KOBE","MKE"], hint:"☕",
         grid:[
           {word:"KIKOMBE", row:0, col:0, dir:"H"},
           {word:"KOBE", row:0, col:0, dir:"V"},
           {word:"MKE", row:0, col:4, dir:"V"}
         ]},
-      { hero:"UFUNGUO", words:["UFUNGUO"], hint:"🔑" },
       { hero:"SANDUKU", words:["SANDUKU","DUKA","UA"], hint:"📦",
         grid:[
           {word:"SANDUKU", row:0, col:0, dir:"H"},
           {word:"DUKA", row:0, col:3, dir:"V"},
           {word:"UA", row:0, col:4, dir:"V"}
-        ]},
-      { hero:"TAA", words:["TAA"], hint:"💡" },
-      { hero:"UFAGIO", words:["UFAGIO"], hint:"🧹" },
-      { hero:"BEGI", words:["BEGI"], hint:"🎒" },
-      { hero:"KIOO", words:["KIOO"], hint:"🪞" }
+        ]}
     ]},
   { id:"afya", name:"Afya", icon:"🏥", accent:"#8a7f6c",
     levels:[
-      { hero:"DAKTARI", words:["DAKTARI","RADI","ARI","KAA","TAA"], hint:"🩺",
-        grid:[
-          {word:"DAKTARI", row:0, col:0, dir:"H"},
-          {word:"RADI", row:0, col:5, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"},
-          {word:"KAA", row:0, col:2, dir:"V"},
-          {word:"TAA", row:0, col:3, dir:"V"}
-        ]},
       { hero:"DAWA", words:["DAWA"], hint:"💊" },
-      { hero:"HOSPITALI", words:["HOSPITALI","SHATI","SITA","TISA","SIO"], hint:"🏥",
-        grid:[
-          {word:"HOSPITALI", row:0, col:0, dir:"H"},
-          {word:"SHATI", row:0, col:2, dir:"V"},
-          {word:"SITA", row:-1, col:4, dir:"V"},
-          {word:"TISA", row:0, col:5, dir:"V"},
-          {word:"SIO", row:-1, col:8, dir:"V"}
-        ]},
       { hero:"AFYA", words:["AFYA"], hint:"💪" },
       { hero:"NESI", words:["NESI"], hint:"👩‍⚕️" },
+      { hero:"HOMA", words:["HOMA"], hint:"🤒" },
+      { hero:"JERAHA", words:["JERAHA"], hint:"🩹" },
+      { hero:"CHANJO", words:["CHANJO"], hint:"💉" },
       { hero:"MGONJWA", words:["MGONJWA","NGOMA","MOJA"], hint:"🤒",
         grid:[
           {word:"MGONJWA", row:0, col:0, dir:"H"},
           {word:"NGOMA", row:0, col:3, dir:"V"},
           {word:"MOJA", row:0, col:0, dir:"V"}
+        ]},
+      { hero:"SINDANO", words:["SINDANO","DANSI","SIO"], hint:"💉",
+        grid:[
+          {word:"SINDANO", row:0, col:0, dir:"H"},
+          {word:"DANSI", row:0, col:3, dir:"V"},
+          {word:"SIO", row:0, col:0, dir:"V"}
         ]},
       { hero:"UGONJWA", words:["UGONJWA","NGUO","JUA","UA"], hint:"🦠",
         grid:[
@@ -724,26 +787,45 @@ const WORLDS = [
           {word:"JUA", row:0, col:4, dir:"V"},
           {word:"UA", row:0, col:0, dir:"V"}
         ]},
-      { hero:"SINDANO", words:["SINDANO","DANSI","SIO"], hint:"💉",
+      { hero:"DAKTARI", words:["DAKTARI","RADI","KAA","TAA"], hint:"🩺",
         grid:[
-          {word:"SINDANO", row:0, col:0, dir:"H"},
-          {word:"DANSI", row:0, col:3, dir:"V"},
-          {word:"SIO", row:0, col:0, dir:"V"}
+          {word:"DAKTARI", row:0, col:0, dir:"H"},
+          {word:"RADI", row:0, col:5, dir:"V"},
+          {word:"KAA", row:0, col:2, dir:"V"},
+          {word:"TAA", row:0, col:3, dir:"V"}
         ]},
-      { hero:"JERAHA", words:["JERAHA"], hint:"🩹" },
-      { hero:"CHANJO", words:["CHANJO"], hint:"💉" },
-      { hero:"HOMA", words:["HOMA"], hint:"🤒" }
+      { hero:"HOSPITALI", words:["HOSPITALI","SHATI","SITA","TISA","SIO"], hint:"🏥",
+        grid:[
+          {word:"HOSPITALI", row:0, col:0, dir:"H"},
+          {word:"SHATI", row:0, col:2, dir:"V"},
+          {word:"SITA", row:-1, col:4, dir:"V"},
+          {word:"TISA", row:0, col:5, dir:"V"},
+          {word:"SIO", row:-1, col:8, dir:"V"}
+        ]}
     ]},
   { id:"viwanda", name:"Viwanda", icon:"🏭", accent:"#0D5C63",
     levels:[
       { hero:"KAZI", words:["KAZI"], hint:"💼" },
+      { hero:"PESA", words:["PESA"], hint:"💰" },
+      { hero:"SOKO", words:["SOKO"], hint:"🛒" },
+      { hero:"DUKA", words:["DUKA"], hint:"🏪" },
+      { hero:"FEDHA", words:["FEDHA"], hint:"💰" },
+      { hero:"AJIRA", words:["AJIRA"], hint:"💼" },
+      { hero:"BENKI", words:["BENKI"], hint:"🏦" },
+      { hero:"BIDHAA", words:["BIDHAA"], hint:"📦" },
+      { hero:"MSHAHARA", words:["MSHAHARA"], hint:"💵" },
       { hero:"KIWANDA", words:["KIWANDA","DAWA","KAA"], hint:"🏭",
         grid:[
           {word:"KIWANDA", row:0, col:0, dir:"H"},
           {word:"DAWA", row:0, col:5, dir:"V"},
           {word:"KAA", row:0, col:0, dir:"V"}
         ]},
-      { hero:"PESA", words:["PESA"], hint:"💰" },
+      { hero:"MTAJI", words:["MTAJI","MAJI","MTI"], hint:"💹",
+        grid:[
+          {word:"MTAJI", row:0, col:0, dir:"H"},
+          {word:"MAJI", row:0, col:0, dir:"V"},
+          {word:"MTI", row:-1, col:1, dir:"V"}
+        ]},
       { hero:"BIASHARA", words:["BIASHARA","HABARI","HASIRA","BASI","RIBA","SABA","ARI"], hint:"📈",
         grid:[
           {word:"BIASHARA", row:0, col:0, dir:"H"},
@@ -753,53 +835,42 @@ const WORLDS = [
           {word:"RIBA", row:0, col:6, dir:"V"},
           {word:"SABA", row:0, col:3, dir:"V"},
           {word:"ARI", row:0, col:5, dir:"V"}
-        ]},
-      { hero:"SOKO", words:["SOKO"], hint:"🛒" },
-      { hero:"FEDHA", words:["FEDHA"], hint:"💰" },
-      { hero:"DUKA", words:["DUKA"], hint:"🏪" },
-      { hero:"AJIRA", words:["AJIRA"], hint:"💼" },
-      { hero:"MSHAHARA", words:["MSHAHARA"], hint:"💵" },
-      { hero:"BENKI", words:["BENKI"], hint:"🏦" },
-      { hero:"BIDHAA", words:["BIDHAA"], hint:"📦" },
-      { hero:"MTAJI", words:["MTAJI","MAJI","MIA","MTI"], hint:"💹",
-        grid:[
-          {word:"MTAJI", row:0, col:0, dir:"H"},
-          {word:"MAJI", row:0, col:0, dir:"V"},
-          {word:"MIA", row:-1, col:4, dir:"V"},
-          {word:"MTI", row:-1, col:1, dir:"V"}
         ]}
     ]},
   { id:"muda", name:"Muda", icon:"🕐", accent:"#D9A441",
     levels:[
+      { hero:"LEO", words:["LEO"], hint:"📍" },
       { hero:"SIKU", words:["SIKU"], hint:"📅" },
       { hero:"WIKI", words:["WIKI"], hint:"🗓️" },
-      { hero:"MWAKA", words:["MWAKA"], hint:"🎉" },
-      { hero:"ASUBUHI", words:["ASUBUHI","BASI","BUSU","UA"], hint:"🌅",
-        grid:[
-          {word:"ASUBUHI", row:0, col:0, dir:"H"},
-          {word:"BASI", row:0, col:3, dir:"V"},
-          {word:"BUSU", row:-1, col:2, dir:"V"},
-          {word:"UA", row:0, col:4, dir:"V"}
-        ]},
-      { hero:"KESHO", words:["KESHO"], hint:"⏭️" },
       { hero:"JANA", words:["JANA"], hint:"⏮️" },
-      { hero:"LEO", words:["LEO"], hint:"📍" },
+      { hero:"SASA", words:["SASA"], hint:"⏰" },
+      { hero:"MWAKA", words:["MWAKA"], hint:"🎉" },
+      { hero:"KESHO", words:["KESHO"], hint:"⏭️" },
       { hero:"USIKU", words:["USIKU"], hint:"🌃" },
       { hero:"JIONI", words:["JIONI"], hint:"🌇" },
-      { hero:"SASA", words:["SASA"], hint:"⏰" },
+      { hero:"SEKUNDE", words:["SEKUNDE"], hint:"⏲️" },
       { hero:"DAKIKA", words:["DAKIKA","KAKA","KAA"], hint:"⏱️",
         grid:[
           {word:"DAKIKA", row:0, col:0, dir:"H"},
           {word:"KAKA", row:0, col:2, dir:"V"},
           {word:"KAA", row:0, col:4, dir:"V"}
         ]},
-      { hero:"SEKUNDE", words:["SEKUNDE"], hint:"⏲️" }
+      { hero:"ASUBUHI", words:["ASUBUHI","BASI","BUSU"], hint:"🌅",
+        grid:[
+          {word:"ASUBUHI", row:0, col:0, dir:"H"},
+          {word:"BASI", row:0, col:3, dir:"V"},
+          {word:"BUSU", row:-1, col:2, dir:"V"}
+        ]}
     ]},
   { id:"usafiri", name:"Usafiri", icon:"🚗", accent:"#0D5C63",
     levels:[
       { hero:"GARI", words:["GARI"], hint:"🚗" },
       { hero:"BASI", words:["BASI"], hint:"🚌" },
+      { hero:"NJIA", words:["NJIA"], hint:"🛤️" },
+      { hero:"BOTI", words:["BOTI"], hint:"🛶" },
       { hero:"NDEGE", words:["NDEGE"], hint:"✈️" },
+      { hero:"TRENI", words:["TRENI"], hint:"🚆" },
+      { hero:"BARABARA", words:["BARABARA"], hint:"🛣️" },
       { hero:"BAISKELI", words:["BAISKELI","BAKI","BASI"], hint:"🚲",
         grid:[
           {word:"BAISKELI", row:0, col:0, dir:"H"},
@@ -814,85 +885,88 @@ const WORLDS = [
           {word:"SAA", row:0, col:2, dir:"V"},
           {word:"UA", row:0, col:4, dir:"V"}
         ]},
-      { hero:"TRENI", words:["TRENI"], hint:"🚆" },
-      { hero:"BARABARA", words:["BARABARA"], hint:"🛣️" },
-      { hero:"NJIA", words:["NJIA"], hint:"🛤️" },
-      { hero:"BOTI", words:["BOTI"], hint:"🛶" },
-      { hero:"GARIMOSHI", words:["GARIMOSHI","MOSHI","GARI","HOMA","SIMA","ARI","MIA"], hint:"🚂",
+      { hero:"GARIMOSHI", words:["GARIMOSHI","MOSHI","GARI","HOMA","SIMA","ARI"], hint:"🚂",
         grid:[
           {word:"GARIMOSHI", row:0, col:0, dir:"H"},
           {word:"MOSHI", row:0, col:4, dir:"V"},
           {word:"GARI", row:0, col:0, dir:"V"},
           {word:"HOMA", row:0, col:7, dir:"V"},
           {word:"SIMA", row:0, col:6, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"},
-          {word:"MIA", row:-1, col:3, dir:"V"}
+          {word:"ARI", row:0, col:1, dir:"V"}
         ]}
     ]},
   { id:"mavazi", name:"Mavazi", icon:"👕", accent:"#B3373A",
     levels:[
       { hero:"NGUO", words:["NGUO"], hint:"👕" },
+      { hero:"VIATU", words:["VIATU"], hint:"👞" },
+      { hero:"KOFIA", words:["KOFIA"], hint:"🧢" },
+      { hero:"SHUKA", words:["SHUKA"], hint:"🛏️" },
+      { hero:"MKANDA", words:["MKANDA"], hint:"👖" },
+      { hero:"BUIBUI", words:["BUIBUI"], hint:"🖤" },
       { hero:"SHATI", words:["SHATI","SITA","TISA"], hint:"👔",
         grid:[
           {word:"SHATI", row:0, col:0, dir:"H"},
           {word:"SITA", row:0, col:0, dir:"V"},
           {word:"TISA", row:0, col:3, dir:"V"}
         ]},
-      { hero:"SURUALI", words:["SURUALI","ARI","UA"], hint:"👖",
+      { hero:"SURUALI", words:["SURUALI","UA"], hint:"👖",
         grid:[
           {word:"SURUALI", row:0, col:0, dir:"H"},
-          {word:"ARI", row:0, col:4, dir:"V"},
           {word:"UA", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"VIATU", words:["VIATU"], hint:"👞" },
-      { hero:"KOFIA", words:["KOFIA"], hint:"🧢" },
-      { hero:"MKANDA", words:["MKANDA"], hint:"👖" },
-      { hero:"BUIBUI", words:["BUIBUI"], hint:"🖤" },
-      { hero:"SHUKA", words:["SHUKA"], hint:"🛏️" }
+        ]}
     ]},
   { id:"hisia", name:"Hisia", icon:"😊", accent:"#8a7f6c",
     levels:[
+      { hero:"HOFU", words:["HOFU"], hint:"😨" },
+      { hero:"HAMU", words:["HAMU"], hint:"😋" },
+      { hero:"AMANI", words:["AMANI"], hint:"☮️" },
       { hero:"FURAHA", words:["FURAHA"], hint:"😊" },
       { hero:"HUZUNI", words:["HUZUNI"], hint:"😢" },
-      { hero:"HASIRA", words:["HASIRA","ARI","SAA"], hint:"😠",
+      { hero:"UPWEKE", words:["UPWEKE"], hint:"🥺" },
+      { hero:"HASIRA", words:["HASIRA","ARI"], hint:"😠",
         grid:[
           {word:"HASIRA", row:0, col:0, dir:"H"},
-          {word:"ARI", row:0, col:1, dir:"V"},
-          {word:"SAA", row:0, col:2, dir:"V"}
+          {word:"ARI", row:0, col:1, dir:"V"}
         ]},
-      { hero:"HOFU", words:["HOFU"], hint:"😨" },
-      { hero:"AMANI", words:["AMANI"], hint:"☮️" },
-      { hero:"WASIWASI", words:["WASIWASI","SASA","SAWA","SAA"], hint:"😟",
+      { hero:"HURUMA", words:["HURUMA","HAMU"], hint:"🤲",
+        grid:[
+          {word:"HURUMA", row:0, col:0, dir:"H"},
+          {word:"HAMU", row:0, col:0, dir:"V"}
+        ]},
+      { hero:"WASIWASI", words:["WASIWASI","SASA","SAWA"], hint:"😟",
         grid:[
           {word:"WASIWASI", row:0, col:0, dir:"H"},
           {word:"SASA", row:0, col:2, dir:"V"},
-          {word:"SAWA", row:0, col:6, dir:"V"},
-          {word:"SAA", row:-1, col:1, dir:"V"}
-        ]},
-      { hero:"UPWEKE", words:["UPWEKE"], hint:"🥺" },
-      { hero:"HURUMA", words:["HURUMA","HAMU","UA"], hint:"🤲",
-        grid:[
-          {word:"HURUMA", row:0, col:0, dir:"H"},
-          {word:"HAMU", row:0, col:0, dir:"V"},
-          {word:"UA", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"HAMU", words:["HAMU"], hint:"😋" }
+          {word:"SAWA", row:0, col:6, dir:"V"}
+        ]}
     ]},
   { id:"shule", name:"Shule", icon:"📚", accent:"#D9A441",
     levels:[
+      { hero:"SOMO", words:["SOMO"], hint:"📔" },
       { hero:"SHULE", words:["SHULE"], hint:"🏫" },
-      { hero:"KITABU", words:["KITABU","BAKI","UA"], hint:"📖",
+      { hero:"ALAMA", words:["ALAMA"], hint:"🔖" },
+      { hero:"DARASA", words:["DARASA"], hint:"📝" },
+      { hero:"KITABU", words:["KITABU","BAKI"], hint:"📖",
         grid:[
           {word:"KITABU", row:0, col:0, dir:"H"},
-          {word:"BAKI", row:0, col:4, dir:"V"},
-          {word:"UA", row:0, col:5, dir:"V"}
+          {word:"BAKI", row:0, col:4, dir:"V"}
         ]},
-      { hero:"KALAMU", words:["KALAMU","MAUA","KAA","UA"], hint:"🖊️",
+      { hero:"MTIHANI", words:["MTIHANI","MIA","MTI"], hint:"📝",
+        grid:[
+          {word:"MTIHANI", row:0, col:0, dir:"H"},
+          {word:"MIA", row:0, col:0, dir:"V"},
+          {word:"MTI", row:-1, col:1, dir:"V"}
+        ]},
+      { hero:"JARIBIO", words:["JARIBIO","RIBA"], hint:"🧪",
+        grid:[
+          {word:"JARIBIO", row:0, col:0, dir:"H"},
+          {word:"RIBA", row:0, col:2, dir:"V"}
+        ]},
+      { hero:"KALAMU", words:["KALAMU","MAUA","KAA"], hint:"🖊️",
         grid:[
           {word:"KALAMU", row:0, col:0, dir:"H"},
           {word:"MAUA", row:0, col:4, dir:"V"},
-          {word:"KAA", row:0, col:0, dir:"V"},
-          {word:"UA", row:0, col:5, dir:"V"}
+          {word:"KAA", row:0, col:0, dir:"V"}
         ]},
       { hero:"MWALIMU", words:["MWALIMU","WALI","MIA","UA"], hint:"🧑‍🏫",
         grid:[
@@ -901,63 +975,45 @@ const WORLDS = [
           {word:"MIA", row:0, col:0, dir:"V"},
           {word:"UA", row:0, col:6, dir:"V"}
         ]},
-      { hero:"DARASA", words:["DARASA"], hint:"📝" },
-      { hero:"MWANAFUNZI", words:["MWANAFUNZI","MWANZA","AMANI","MWANA","MAUA","MIA","UA"], hint:"🎒",
+      { hero:"MWANAFUNZI", words:["MWANAFUNZI","MWANZA","AMANI","MWANA","MAUA","UA"], hint:"🎒",
         grid:[
           {word:"MWANAFUNZI", row:0, col:0, dir:"H"},
           {word:"MWANZA", row:0, col:0, dir:"V"},
           {word:"AMANI", row:0, col:2, dir:"V"},
           {word:"MWANA", row:-1, col:1, dir:"V"},
           {word:"MAUA", row:-1, col:4, dir:"V"},
-          {word:"MIA", row:-1, col:9, dir:"V"},
           {word:"UA", row:0, col:6, dir:"V"}
-        ]},
-      { hero:"MTIHANI", words:["MTIHANI","MIA","MTI"], hint:"📝",
-        grid:[
-          {word:"MTIHANI", row:0, col:0, dir:"H"},
-          {word:"MIA", row:0, col:0, dir:"V"},
-          {word:"MTI", row:-1, col:1, dir:"V"}
-        ]},
-      { hero:"SOMO", words:["SOMO"], hint:"📔" },
-      { hero:"JARIBIO", words:["JARIBIO","RIBA","ARI"], hint:"🧪",
-        grid:[
-          {word:"JARIBIO", row:0, col:0, dir:"H"},
-          {word:"RIBA", row:0, col:2, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
-        ]},
-      { hero:"ALAMA", words:["ALAMA"], hint:"🔖" }
+        ]}
     ]},
   { id:"michezo", name:"Michezo", icon:"🏀", accent:"#B3373A",
     levels:[
-      { hero:"MPIRA", words:["MPIRA","ARI","MIA"], hint:"🏀",
-        grid:[
-          {word:"MPIRA", row:0, col:0, dir:"H"},
-          {word:"ARI", row:0, col:4, dir:"V"},
-          {word:"MIA", row:0, col:0, dir:"V"}
-        ]},
-      { hero:"MECHI", words:["MECHI"], hint:"🥅" },
-      { hero:"UWANJA", words:["UWANJA","JANA","JUA","UA"], hint:"🏟️",
-        grid:[
-          {word:"UWANJA", row:0, col:0, dir:"H"},
-          {word:"JANA", row:0, col:4, dir:"V"},
-          {word:"JUA", row:-1, col:0, dir:"V"},
-          {word:"UA", row:-1, col:2, dir:"V"}
-        ]},
       { hero:"TIMU", words:["TIMU"], hint:"👥" },
+      { hero:"MECHI", words:["MECHI"], hint:"🥅" },
       { hero:"USHINDI", words:["USHINDI"], hint:"🏆" },
       { hero:"MSHINDI", words:["MSHINDI"], hint:"🥇" },
-      { hero:"RAGBI", words:["RAGBI","GARI","RIBA","ARI"], hint:"🏉",
+      { hero:"MPIRA", words:["MPIRA","MIA"], hint:"🏀",
         grid:[
-          {word:"RAGBI", row:0, col:0, dir:"H"},
-          {word:"GARI", row:0, col:2, dir:"V"},
-          {word:"RIBA", row:0, col:0, dir:"V"},
-          {word:"ARI", row:0, col:1, dir:"V"}
+          {word:"MPIRA", row:0, col:0, dir:"H"},
+          {word:"MIA", row:0, col:0, dir:"V"}
         ]},
       { hero:"KANDANDA", words:["KANDANDA","DADA","KAA"], hint:"⚽",
         grid:[
           {word:"KANDANDA", row:0, col:0, dir:"H"},
           {word:"DADA", row:0, col:3, dir:"V"},
           {word:"KAA", row:0, col:0, dir:"V"}
+        ]},
+      { hero:"RAGBI", words:["RAGBI","GARI","RIBA"], hint:"🏉",
+        grid:[
+          {word:"RAGBI", row:0, col:0, dir:"H"},
+          {word:"GARI", row:0, col:2, dir:"V"},
+          {word:"RIBA", row:0, col:0, dir:"V"}
+        ]},
+      { hero:"UWANJA", words:["UWANJA","JANA","JUA","UA"], hint:"🏟️",
+        grid:[
+          {word:"UWANJA", row:0, col:0, dir:"H"},
+          {word:"JANA", row:0, col:4, dir:"V"},
+          {word:"JUA", row:-1, col:0, dir:"V"},
+          {word:"UA", row:-1, col:2, dir:"V"}
         ]}
     ]},
   { id:"muziki", name:"Muziki", icon:"🎵", accent:"#0D5C63",
@@ -965,18 +1021,22 @@ const WORLDS = [
       { hero:"WIMBO", words:["WIMBO"], hint:"🎵" },
       { hero:"NGOMA", words:["NGOMA"], hint:"🥁" },
       { hero:"GITAA", words:["GITAA"], hint:"🎸" },
+      { hero:"DANSI", words:["DANSI"], hint:"💃" },
+      { hero:"KIKUNDI", words:["KIKUNDI"], hint:"🎤" },
       { hero:"SAUTI", words:["SAUTI","SITA","TISA","UA"], hint:"🔊",
         grid:[
           {word:"SAUTI", row:0, col:0, dir:"H"},
           {word:"SITA", row:0, col:0, dir:"V"},
           {word:"TISA", row:0, col:3, dir:"V"},
           {word:"UA", row:0, col:2, dir:"V"}
-        ]},
-      { hero:"KIKUNDI", words:["KIKUNDI"], hint:"🎤" },
-      { hero:"DANSI", words:["DANSI"], hint:"💃" }
+        ]}
     ]},
   { id:"ajira", name:"Ajira", icon:"👷", accent:"#D9A441",
     levels:[
+      { hero:"MVUVI", words:["MVUVI"], hint:"🎣" },
+      { hero:"FUNDI", words:["FUNDI"], hint:"🔧" },
+      { hero:"DEREVA", words:["DEREVA"], hint:"🚕" },
+      { hero:"WAZIRI", words:["WAZIRI"], hint:"🎩" },
       { hero:"ASKARI", words:["ASKARI","ARI","KAA","SAA"], hint:"👮",
         grid:[
           {word:"ASKARI", row:0, col:0, dir:"H"},
@@ -991,9 +1051,12 @@ const WORLDS = [
           {word:"MIA", row:0, col:0, dir:"V"},
           {word:"UA", row:0, col:2, dir:"V"}
         ]},
-      { hero:"MVUVI", words:["MVUVI"], hint:"🎣" },
-      { hero:"DEREVA", words:["DEREVA"], hint:"🚕" },
-      { hero:"FUNDI", words:["FUNDI"], hint:"🔧" },
+      { hero:"HAKIMU", words:["HAKIMU","HAMU","KUMI"], hint:"⚖️",
+        grid:[
+          {word:"HAKIMU", row:0, col:0, dir:"H"},
+          {word:"HAMU", row:0, col:0, dir:"V"},
+          {word:"KUMI", row:0, col:2, dir:"V"}
+        ]},
       { hero:"MFANYABIASHARA", words:["MFANYABIASHARA","BIASHARA","SAMAHANI","HABARI","HASIRA","SAHANI","SHAMBA"], hint:"💼",
         grid:[
           {word:"MFANYABIASHARA", row:0, col:0, dir:"H"},
@@ -1003,77 +1066,64 @@ const WORLDS = [
           {word:"HASIRA", row:-1, col:2, dir:"V"},
           {word:"SAHANI", row:-1, col:5, dir:"V"},
           {word:"SHAMBA", row:-2, col:8, dir:"V"}
-        ]},
-      { hero:"HAKIMU", words:["HAKIMU","HAMU","KUMI","MIA","UA"], hint:"⚖️",
-        grid:[
-          {word:"HAKIMU", row:0, col:0, dir:"H"},
-          {word:"HAMU", row:0, col:0, dir:"V"},
-          {word:"KUMI", row:0, col:2, dir:"V"},
-          {word:"MIA", row:0, col:4, dir:"V"},
-          {word:"UA", row:0, col:5, dir:"V"}
-        ]},
-      { hero:"WAZIRI", words:["WAZIRI"], hint:"🎩" }
+        ]}
     ]},
   { id:"teknolojia", name:"Teknolojia", icon:"📱", accent:"#8a7f6c",
     levels:[
       { hero:"SIMU", words:["SIMU"], hint:"📱" },
-      { hero:"KOMPYUTA", words:["KOMPYUTA","PUA","UA"], hint:"💻",
-        grid:[
-          {word:"KOMPYUTA", row:0, col:0, dir:"H"},
-          {word:"PUA", row:0, col:3, dir:"V"},
-          {word:"UA", row:0, col:5, dir:"V"}
-        ]},
       { hero:"REDIO", words:["REDIO"], hint:"📻" },
-      { hero:"RUNINGA", words:["RUNINGA","GARI","ARI","UA"], hint:"📺",
-        grid:[
-          {word:"RUNINGA", row:0, col:0, dir:"H"},
-          {word:"GARI", row:0, col:5, dir:"V"},
-          {word:"ARI", row:0, col:6, dir:"V"},
-          {word:"UA", row:0, col:1, dir:"V"}
-        ]},
       { hero:"TOVUTI", words:["TOVUTI"], hint:"🌐" },
-      { hero:"BARUAPEPE", words:["BARUAPEPE","PUA","UA"], hint:"📧",
-        grid:[
-          {word:"BARUAPEPE", row:0, col:0, dir:"H"},
-          {word:"PUA", row:0, col:5, dir:"V"},
-          {word:"UA", row:0, col:3, dir:"V"}
-        ]},
       { hero:"MTANDAO", words:["MTANDAO","TANO","TAA"], hint:"🕸️",
         grid:[
           {word:"MTANDAO", row:0, col:0, dir:"H"},
           {word:"TANO", row:0, col:1, dir:"V"},
           {word:"TAA", row:-1, col:2, dir:"V"}
+        ]},
+      { hero:"KOMPYUTA", words:["KOMPYUTA","PUA"], hint:"💻",
+        grid:[
+          {word:"KOMPYUTA", row:0, col:0, dir:"H"},
+          {word:"PUA", row:0, col:3, dir:"V"}
+        ]},
+      { hero:"BARUAPEPE", words:["BARUAPEPE","PUA"], hint:"📧",
+        grid:[
+          {word:"BARUAPEPE", row:0, col:0, dir:"H"},
+          {word:"PUA", row:0, col:5, dir:"V"}
+        ]},
+      { hero:"RUNINGA", words:["RUNINGA","GARI","ARI"], hint:"📺",
+        grid:[
+          {word:"RUNINGA", row:0, col:0, dir:"H"},
+          {word:"GARI", row:0, col:5, dir:"V"},
+          {word:"ARI", row:0, col:6, dir:"V"}
         ]}
     ]},
   { id:"bustani", name:"Bustani", icon:"🌳", accent:"#0D5C63",
     levels:[
-      { hero:"MTI", words:["MTI"], hint:"🌳" },
       { hero:"UA", words:["UA"], hint:"🌸" },
+      { hero:"MTI", words:["MTI"], hint:"🌳" },
       { hero:"JANI", words:["JANI"], hint:"🍃" },
+      { hero:"MAUA", words:["MAUA"], hint:"💐" },
       { hero:"MZIZI", words:["MZIZI"], hint:"🌱" },
-      { hero:"SHAMBA", words:["SHAMBA","SABA","SAA"], hint:"🌾",
+      { hero:"UDONGO", words:["UDONGO"], hint:"🟤" },
+      { hero:"SHAMBA", words:["SHAMBA","SABA"], hint:"🌾",
         grid:[
           {word:"SHAMBA", row:0, col:0, dir:"H"},
-          {word:"SABA", row:0, col:0, dir:"V"},
-          {word:"SAA", row:-1, col:2, dir:"V"}
+          {word:"SABA", row:0, col:0, dir:"V"}
         ]},
-      { hero:"MAUA", words:["MAUA"], hint:"💐" },
       { hero:"MSITU", words:["MSITU","SIMU","TIMU","MTI"], hint:"🌲",
         grid:[
           {word:"MSITU", row:0, col:0, dir:"H"},
           {word:"SIMU", row:0, col:1, dir:"V"},
           {word:"TIMU", row:0, col:3, dir:"V"},
           {word:"MTI", row:0, col:0, dir:"V"}
-        ]},
-      { hero:"UDONGO", words:["UDONGO"], hint:"🟤" }
+        ]}
     ]},
   { id:"nyumbani", name:"Nyumbani", icon:"🏠", accent:"#B3373A",
     levels:[
       { hero:"JIKO", words:["JIKO"], hint:"🍳" },
       { hero:"BAFU", words:["BAFU"], hint:"🛁" },
+      { hero:"UZIO", words:["UZIO"], hint:"🚧" },
       { hero:"UKUMBI", words:["UKUMBI"], hint:"🛋️" },
-      { hero:"GHOROFA", words:["GHOROFA"], hint:"🏢" },
-      { hero:"UZIO", words:["UZIO"], hint:"🚧" }
+      { hero:"GHOROFA", words:["GHOROFA"], hint:"🏢" }
     ]}
 ];
 
@@ -1087,7 +1137,7 @@ const METHALI = [
 ];
 
 /* ================= STATE ================= */
-let progress = { soundOn: true, completed: {}, streak: 0, lastPlayDate: null, giftClaimedDate: null }; // completed["worldId-levelIdx"] = starCount
+let progress = { soundOn: true, completed: {}, streak: 0, lastPlayDate: null, giftClaimedDate: null, hints: 3, score: 0, tutorialSeen: false }; // completed["worldId-levelIdx"] = starCount; hints = ipucu haki zilizobaki; score = pointi jumla; tutorialSeen = ilk oyun ogreticisi gosterildi mi
 let gameState = null;
 const STORAGE_KEY = "swahili-game-progress-v1";
 
@@ -1103,7 +1153,7 @@ setMethali();
 /* Tries window.storage first (available inside Claude.ai previews).
    Falls back to localStorage automatically once this file runs standalone
    (e.g. packaged as an Android app) — so progress always persists. */
-const DEFAULT_PROGRESS = { soundOn: true, completed: {}, streak: 0, lastPlayDate: null, giftClaimedDate: null };
+const DEFAULT_PROGRESS = { soundOn: true, completed: {}, streak: 0, lastPlayDate: null, giftClaimedDate: null, hints: 3, score: 0, tutorialSeen: false };
 
 async function loadProgress(){
   let loaded = null;
@@ -1155,10 +1205,14 @@ function playTone(freq, dur, type, delay, vol){
   osc.connect(gain); gain.connect(audioCtx.destination);
   osc.start(t0); osc.stop(t0 + dur);
 }
-function sfxTap(step){ ensureAudio(); const freq = 420 + ((step||1) % 6) * 55; playTone(freq, 0.05, "sine", 0, 0.045); }
-function sfxCorrect(){ ensureAudio(); playTone(523.25,0.12,"sine",0,0.15); playTone(659.25,0.12,"sine",0.08,0.15); playTone(783.99,0.18,"sine",0.16,0.15); }
-function sfxWrong(){ ensureAudio(); playTone(160,0.25,"sawtooth",0,0.1); }
-function sfxWin(){ ensureAudio(); [523.25,659.25,783.99,1046.5].forEach((f,i)=>playTone(f,0.2,"triangle",i*0.12,0.16)); }
+function vibrate(pattern){
+  if(!progress.soundOn) return; // haptikler ses ayarıyla birlikte açık/kapalı
+  try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){ /* desteklenmiyor, sorun değil */ }
+}
+function sfxTap(step){ ensureAudio(); const freq = 420 + ((step||1) % 6) * 55; playTone(freq, 0.05, "sine", 0, 0.045); vibrate(8); }
+function sfxCorrect(){ ensureAudio(); playTone(523.25,0.12,"sine",0,0.15); playTone(659.25,0.12,"sine",0.08,0.15); playTone(783.99,0.18,"sine",0.16,0.15); vibrate([12,20,12]); }
+function sfxWrong(){ ensureAudio(); playTone(160,0.25,"sawtooth",0,0.1); vibrate(60); }
+function sfxWin(){ ensureAudio(); [523.25,659.25,783.99,1046.5].forEach((f,i)=>playTone(f,0.2,"triangle",i*0.12,0.16)); vibrate([15,40,15,40,80]); }
 
 function renderSoundToggle(){
   const btn = document.createElement("button");
@@ -1444,6 +1498,14 @@ function totalStats(){
   WORLDS.forEach(w => { total += w.levels.length; done += worldStats(w).done; });
   return { total, done };
 }
+// Bir dünyaya girildiğinde ayrı bir kiwango (seviye) listesi göstermek yerine
+// doğrudan ilk tamamlanmamış kelimeden oyunu başlatır — tek akış deneyimi.
+function enterWorld(wIdx){
+  const world = WORLDS[wIdx];
+  const idx = world.levels.findIndex((_, i) => progress.completed[world.id+"-"+i] == null);
+  if(idx === -1){ startWorldExtension(wIdx); return; } // tüm seviyeler bitti -> sonsuz uzantı
+  startLevel(wIdx, idx);
+}
 
 /* ================= MENU ================= */
 function renderMenu(){
@@ -1553,6 +1615,7 @@ function renderWorldMap(){
       </div>
       <div class="stat-row">
         <div class="streak-badge">🔥 <strong>${progress.streak || 0}</strong> siku mfululizo</div>
+        <div class="score-badge">💎 <strong>${progress.score || 0}</strong> pointi</div>
         <button class="gift-btn ${giftAvailable ? 'ready' : 'claimed'}" id="giftBtn">
           ${giftAvailable ? '🎁 Zawadi ya leo' : '✅ Umepokea leo'}
         </button>
@@ -1563,6 +1626,7 @@ function renderWorldMap(){
         <div class="subtitle">Choose a world to explore</div>
       </header>
       <button class="jump-btn" id="jumpBtn">📍 Nenda kwenye maendeleo yangu</button>
+      <button class="endless-btn" id="endlessBtn">♾️ Bila Mwisho — Cheza Sasa</button>
       <div class="world-path" id="worldPath"></div>
     </div></div>
   `;
@@ -1599,7 +1663,7 @@ function renderWorldMap(){
     `;
     if(unlocked){
       node.addEventListener("click", () => {
-        sfxTap(); wmf.classList.remove("active"); wmf.innerHTML = ""; renderLevelMap(i);
+        sfxTap(); wmf.classList.remove("active"); wmf.innerHTML = ""; enterWorld(i);
       });
     }
     path.appendChild(node);
@@ -1610,6 +1674,9 @@ function renderWorldMap(){
     if(target) target.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "center" });
   }
   document.getElementById("jumpBtn").addEventListener("click", () => { sfxTap(); jumpToFrontier(true); });
+  document.getElementById("endlessBtn").addEventListener("click", () => {
+    sfxTap(); wmf.classList.remove("active"); wmf.innerHTML = ""; startEndlessLevel();
+  });
   setTimeout(() => jumpToFrontier(false), 50);
 }
 
@@ -1679,31 +1746,210 @@ function computeGrid(level){
   return { rows, cols, cellMap, minRow, minCol };
 }
 
-function startLevel(wIdx, lIdx){
-  const world = WORLDS[wIdx];
-  const level = world.levels[lIdx];
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ================= SONSUZ MOD (BILA MWISHO) =================
+   Elle yazılmış seviyeler yerine, gerçek bir Swahili kelime listesinden
+   (DICTIONARY) rastgele bir "kahraman" kelime seçer, sonra o kelimenin
+   harfleriyle (aynı harf yalnızca hero'da kaç kez geçiyorsa o kadar)
+   kurulabilecek diğer gerçek kelimeleri bulur. Izgara yerine (crossword
+   yerleşimi otomatik hesaplanamadığından) düz kelime listesi modunda oynanır. */
+function letterMultiset(word){
+  const m = {};
+  for(const ch of word) m[ch] = (m[ch] || 0) + 1;
+  return m;
+}
+function isLetterSubset(word, heroMultiset){
+  const used = {};
+  for(const ch of word){
+    used[ch] = (used[ch] || 0) + 1;
+    if(!heroMultiset[ch] || used[ch] > heroMultiset[ch]) return false;
+  }
+  return true;
+}
+// Kahraman kelimeyi yatay olarak sabitler, her alt kelimeyi ortak bir harften
+// dikey olarak kahramanla kesiştirir (çakışan hücrelerde harf uyuşmazsa o
+// noktayı dener, olmazsa başka bir kesişim noktasına geçer). Yerleştirilemeyen
+// alt kelimeler sessizce elenir — böylece geçersiz bir ızgara asla dönmez.
+function computeAutoGrid(hero, subwords){
+  const cellMap = {};
+  const placements = [{ word: hero, row: 0, col: 0, dir: "H" }];
+  for(let i = 0; i < hero.length; i++) cellMap[`0,${i}`] = hero[i];
+
+  const heroIndexByLetter = {};
+  for(let i = 0; i < hero.length; i++){
+    (heroIndexByLetter[hero[i]] = heroIndexByLetter[hero[i]] || []).push(i);
+  }
+
+  const sorted = [...subwords].sort((a, b) => b.length - a.length);
+  const placedWords = [hero];
+
+  for(const w of sorted){
+    let placed = false;
+    const letterSpots = shuffleArray([...w].map((ch, i) => ({ ch, i })));
+    for(const { ch, i } of letterSpots){
+      const heroPositions = heroIndexByLetter[ch];
+      if(!heroPositions) continue;
+      for(const heroIdx of shuffleArray(heroPositions)){
+        const row = 0 - i, col = heroIdx;
+        let ok = true;
+        for(let k = 0; k < w.length; k++){
+          const key = `${row + k},${col}`;
+          if(cellMap[key] != null && cellMap[key] !== w[k]){ ok = false; break; }
+        }
+        if(ok){
+          for(let k = 0; k < w.length; k++) cellMap[`${row + k},${col}`] = w[k];
+          placements.push({ word: w, row, col, dir: "V" });
+          placedWords.push(w);
+          placed = true;
+          break;
+        }
+      }
+      if(placed) break;
+    }
+  }
+  return { placements, words: placedWords };
+}
+
+// Sonsuz moddaki mevcut "tur derinliği" — her ardışık kelimede bir artar,
+// oyuncu sonsuz moddan çıkıp yeniden girince sıfırlanır.
+let endlessTier = 0;
+
+// tier arttıkça: kahraman kelime uzunluğu kademeli büyür, bedava gelen
+// alt kelime sayısı azalır (daha az "ücretsiz" ipucu niteliğinde kelime).
+function generateEndlessLevel(tier){
+  tier = tier || 0;
+  const minLen = Math.min(5 + Math.floor(tier / 3), 8);
+  const maxLen = Math.min(minLen + 2, 11);
+  const maxSubwords = Math.max(7 - Math.floor(tier / 4), 3);
+
+  const candidates = DICTIONARY.filter(w => w.length >= minLen && w.length <= maxLen);
+  let hero = "", subwords = [];
+  for(let attempt = 0; attempt < 60; attempt++){
+    const tryHero = candidates[Math.floor(Math.random() * candidates.length)];
+    const hm = letterMultiset(tryHero);
+    const found = DICTIONARY.filter(w => w !== tryHero && w.length >= 3 && w.length < tryHero.length && isLetterSubset(w, hm));
+    if(found.length >= 2){ hero = tryHero; subwords = found; break; }
+  }
+  if(!hero){ hero = candidates[0]; subwords = []; } // son çare, neredeyse hiç olmaz
+  subwords = shuffleArray(subwords).slice(0, maxSubwords);
+
+  const gridResult = computeAutoGrid(hero, subwords);
+  if(gridResult.words.length >= 3){ // hero + en az 2 alt kelime ızgaraya oturduysa çapraz bulmaca kullan
+    return { hero, words: gridResult.words, hint: "✨", grid: gridResult.placements, tier };
+  }
+  return { hero, words: [hero, ...subwords.slice(0, maxSubwords)], hint: "✨", tier }; // ızgara kurulamazsa düz liste
+}
+
+function startEndlessLevel(continuing){
+  endlessTier = continuing ? endlessTier + 1 : 0;
+  const level = generateEndlessLevel(endlessTier);
   const sortedWords = [...level.words].sort((a,b) => a.length - b.length);
-  // letters bag: use the letters of the hero word (covers all shorter subwords by construction)
   gameState = {
-    wIdx, lIdx, world, level,
-    letters: level.hero.split(""),
+    wIdx: -1, lIdx: -1, world: null, level,
+    letters: shuffleArray(level.hero.split("")),
     sortedWords,
     found: new Set(),
     path: [],
     dragging: false,
     positions: [],
-    mistakes: 0
+    mistakes: 0,
+    hintsUsedThisLevel: 0,
+    comboCount: 0,
+    revealed: {},
+    levelScore: 0,
+    levelStartTime: Date.now(),
+    lastEventTime: Date.now(),
+    endless: true,
+    tier: endlessTier,
+    continueFn: () => startEndlessLevel(true)
   };
   renderGame();
 }
 
-function gridCellSize(cols){
-  const maxWidth = 300;
+// Bir dünyanın elle yazılmış tüm seviyeleri bitince, aynı üretim algoritmasıyla
+// o dünyanın görsel temasını (arka plan/renk) koruyarak sonsuz devam eder.
+function startWorldExtension(wIdx, continuing){
+  endlessTier = continuing ? endlessTier + 1 : 0;
+  const world = WORLDS[wIdx];
+  const level = generateEndlessLevel(endlessTier);
+  const sortedWords = [...level.words].sort((a,b) => a.length - b.length);
+  gameState = {
+    wIdx, lIdx: -1, world, level,
+    letters: shuffleArray(level.hero.split("")),
+    sortedWords,
+    found: new Set(),
+    path: [],
+    dragging: false,
+    positions: [],
+    mistakes: 0,
+    hintsUsedThisLevel: 0,
+    comboCount: 0,
+    revealed: {},
+    levelScore: 0,
+    levelStartTime: Date.now(),
+    lastEventTime: Date.now(),
+    endless: true,
+    tier: endlessTier,
+    continueFn: () => startWorldExtension(wIdx, true)
+  };
+  renderGame();
+}
+
+function startLevel(wIdx, lIdx){
+  const world = WORLDS[wIdx];
+  const level = world.levels[lIdx];
+  const sortedWords = [...level.words].sort((a,b) => a.length - b.length);
+  // letters bag: kahraman kelimenin harfleri (tüm alt kelimeleri kapsar), ama
+  // sırası doğrudan okunmasın diye karıştırılmış olarak gelir.
+  gameState = {
+    wIdx, lIdx, world, level,
+    letters: shuffleArray(level.hero.split("")),
+    sortedWords,
+    found: new Set(),
+    path: [],
+    dragging: false,
+    positions: [],
+    mistakes: 0,
+    hintsUsedThisLevel: 0,
+    comboCount: 0,
+    revealed: {}, // { KELIME: Set(açılmış harf indeksleri) }
+    levelScore: 0,
+    levelStartTime: Date.now(),
+    lastEventTime: Date.now(),
+    endless: false
+  };
+  renderGame();
+}
+
+function gridCellSize(cols, rows){
+  const maxWidth = 300, maxHeight = 210;
   const gap = cols > 10 ? 2 : (cols > 7 ? 3 : 4);
-  let cell = Math.floor((maxWidth - (cols - 1) * gap) / cols);
-  cell = Math.max(18, Math.min(40, cell));
-  const font = Math.max(9, Math.round(cell * 0.5));
+  const cellW = Math.floor((maxWidth - (cols - 1) * gap) / cols);
+  const cellH = Math.floor((maxHeight - (rows - 1) * gap) / rows);
+  let cell = Math.min(cellW, cellH);
+  cell = Math.max(14, Math.min(40, cell));
+  const font = Math.max(8, Math.round(cell * 0.5));
   return { cell, gap, font };
+}
+
+// word-row modunda (grid'siz tek/kısa kelime listeleri) en uzun kelimeye göre kutu boyutunu
+// küçültür, böylece uzun kahraman kelimeler (ör. TAFADHALI) ekrandan taşmaz.
+function wordBoxSize(maxLen){
+  const maxWidth = 300;
+  const gap = maxLen > 9 ? 3 : (maxLen > 6 ? 4 : 5);
+  let w = Math.floor((maxWidth - (maxLen - 1) * gap) / maxLen);
+  w = Math.max(22, Math.min(40, w));
+  const h = Math.round(w * 1.1);
+  const font = Math.max(11, Math.round(w * 0.5));
+  return { w, h, gap, font };
 }
 
 function renderGame(){
@@ -1723,7 +1969,7 @@ function renderGame(){
         });
       }
     });
-    const { cell, gap, font } = gridCellSize(g.cols);
+    const { cell, gap, font } = gridCellSize(g.cols, g.rows);
     let cells = "";
     for(let r = 0; r < g.rows; r++){
       for(let c = 0; c < g.cols; c++){
@@ -1737,49 +1983,70 @@ function renderGame(){
     }
     boardHtml = `<div class="crossword-grid" id="crosswordGrid" style="grid-template-columns: repeat(${g.cols}, ${cell}px); grid-template-rows: repeat(${g.rows}, ${cell}px); gap:${gap}px;">${cells}</div>`;
   } else {
+    const maxLen = Math.max(...sortedWords.map(w => w.length));
+    const { w: boxW, h: boxH, gap: boxGap, font: boxFont } = wordBoxSize(maxLen);
     boardHtml = `
-      <div class="word-rows" id="wordRows">
+      <div class="word-rows" id="wordRows" style="gap:10px ${boxGap}px;">
         ${sortedWords.map(w => `
-          <div class="word-row ${w === level.hero ? 'hero' : ''}" data-word="${w}">
-            ${[...w].map(() => `<div class="letter-box"></div>`).join("")}
+          <div class="word-row ${w === level.hero ? 'hero' : ''}" data-word="${w}" style="gap:${boxGap}px;">
+            ${[...w].map(() => `<div class="letter-box" style="width:${boxW}px;height:${boxH}px;font-size:${boxFont}px;"></div>`).join("")}
           </div>
         `).join("")}
       </div>`;
   }
   const gameFullscreen = document.getElementById("gameFullscreen");
-  const levelPhotoKey = world.id + "-" + gameState.lIdx;
-  const photoSrc = LEVEL_PHOTOS[levelPhotoKey] || LOCAL_PHOTOS[world.id] || null;
+  const worldId = world ? world.id : "endless";
+  const worldAccent = world ? world.accent : "#0D5C63";
+  const levelPhotoKey = world ? (world.id + "-" + gameState.lIdx) : null;
+  const photoSrc = (levelPhotoKey && LEVEL_PHOTOS[levelPhotoKey]) || (world && LOCAL_PHOTOS[world.id]) || null;
   const photoTag = photoSrc
     ? `<img src="${photoSrc}" alt="">`
-    : (WORLD_PHOTOS[world.id] ? `<img src="${pexelsUrl(WORLD_PHOTOS[world.id], 600)}" alt="" onerror="this.remove()">` : '');
+    : (world && WORLD_PHOTOS[world.id] ? `<img src="${pexelsUrl(WORLD_PHOTOS[world.id], 600)}" alt="" onerror="this.remove()">` : '');
   gameFullscreen.classList.add("active");
   gameFullscreen.innerHTML = `
     <div class="game-bg">
-      <div class="scene-fallback">${worldSceneSVG(world.id, world.accent)}</div>
+      <div class="scene-fallback">${worldSceneSVG(worldId, worldAccent)}</div>
       ${photoTag}
     </div>
     <div class="game-overlay"></div>
     <div class="game-content"><div class="game-inner">
       <div class="hud">
-        <span class="back-link" id="backLink">← viwango</span>
-        <span>${gameState.found.size}/${sortedWords.length} maneno</span>
+        <span class="back-link" id="backLink">← dunia</span>
+        ${gameState.endless ? `<span class="tier-badge">🔥 Ngazi ${(gameState.tier||0) + 1}</span>` : ``}
+        <div class="hud-right">
+          <span id="wordCountHud">${gameState.found.size}/${sortedWords.length} maneno</span>
+          <button class="hint-btn" id="hintBtn" ${(progress.hints||0) <= 0 ? "disabled" : ""}>💡 ${progress.hints||0}</button>
+        </div>
       </div>
       ${boardHtml}
       <div class="current-word" id="currentWord">&nbsp;</div>
       <div class="wheel-wrap" id="wheelWrap">
-        <svg id="wheelSvg" viewBox="0 0 240 240"><polyline id="pathLine" points="" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--gold')}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg id="wheelSvg" viewBox="0 0 240 240">
+          <defs>
+            <radialGradient id="wheelDiscGrad" cx="35%" cy="28%" r="75%">
+              <stop offset="0%" stop-color="rgba(255,255,255,0.95)"/>
+              <stop offset="65%" stop-color="rgba(242,231,206,0.65)"/>
+              <stop offset="100%" stop-color="rgba(13,92,99,0.18)"/>
+            </radialGradient>
+          </defs>
+          <circle id="wheelRing" cx="120" cy="120" r="88" fill="url(#wheelDiscGrad)" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--ocean')}" stroke-width="3.5" opacity="0.9"/>
+          <polyline id="pathLine" points="" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--gold')}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
       <div class="controls"><button class="ctrl-btn" id="shuffleBtn">🔀 Changanya</button></div>
     </div></div>
   `;
   document.getElementById("backLink").addEventListener("click", () => {
-    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderLevelMap(gameState.wIdx);
+    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderWorldMap();
   });
   document.getElementById("shuffleBtn").addEventListener("click", () => { sfxTap(); shuffleWheel(); });
+  document.getElementById("hintBtn").addEventListener("click", useHint);
 
   fillFoundWords();
   layoutWheel();
   attachWheelEvents();
+
+  if(!progress.tutorialSeen) showTutorial();
 }
 
 function fillFoundWords(){
@@ -1793,7 +2060,7 @@ function fillFoundWords(){
         const r = placement.row - g.minRow + (placement.dir === "V" ? i : 0);
         const c = placement.col - g.minCol + (placement.dir === "H" ? i : 0);
         const cell = document.getElementById("gameFullscreen").querySelector(`.grid-cell[data-r="${r}"][data-c="${c}"]`);
-        if(cell){ cell.textContent = ch; cell.classList.add("filled"); }
+        if(cell){ cell.textContent = ch; cell.classList.remove("hint-revealed"); cell.classList.add("filled"); }
       });
     });
     return;
@@ -1802,16 +2069,45 @@ function fillFoundWords(){
     const row = document.getElementById("gameFullscreen").querySelector(`.word-row[data-word="${w}"]`);
     if(!row) return;
     const boxes = row.querySelectorAll(".letter-box");
-    [...w].forEach((ch, i) => { boxes[i].textContent = ch; boxes[i].classList.add("filled"); });
+    [...w].forEach((ch, i) => { boxes[i].textContent = ch; boxes[i].classList.remove("hint-revealed"); boxes[i].classList.add("filled"); });
+  });
+}
+
+// İlk kez oynanıyorsa, harfleri sürükleyerek kelime oluşturma mekaniğini gösteren
+// kısa bir öğretici overlay'i gösterir. Bir kez kapatılınca progress.tutorialSeen ile hatırlanır.
+function showTutorial(){
+  const gf = document.getElementById("gameFullscreen");
+  if(!gf) return;
+  const overlay = document.createElement("div");
+  overlay.className = "tutorial-overlay";
+  overlay.innerHTML = `
+    <div class="tutorial-card">
+      <div class="tutorial-anim">
+        <svg viewBox="0 0 200 80" width="200" height="80">
+          <line x1="30" y1="40" x2="170" y2="40" stroke="rgba(255,255,255,0.4)" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round"/>
+          <circle cx="30" cy="40" r="17" fill="rgba(255,255,255,0.92)" stroke="var(--ocean)" stroke-width="2"/>
+          <circle cx="100" cy="40" r="17" fill="rgba(255,255,255,0.92)" stroke="var(--ocean)" stroke-width="2"/>
+          <circle cx="170" cy="40" r="17" fill="rgba(255,255,255,0.92)" stroke="var(--ocean)" stroke-width="2"/>
+          <circle class="tutorial-finger" cx="30" cy="40" r="9" fill="var(--kanga-red)"/>
+        </svg>
+      </div>
+      <div class="tutorial-title">Karibu! 👋</div>
+      <div class="tutorial-text">Buruta kidole chako juu ya herufi ili kuunda neno, kisha uachie.</div>
+      <div class="tutorial-sub">Drag your finger across the letters to spell a word, then release.</div>
+      <button class="restart-btn" id="tutorialCloseBtn">Nimeelewa, tucheze! →</button>
+    </div>
+  `;
+  gf.appendChild(overlay);
+  document.getElementById("tutorialCloseBtn").addEventListener("click", () => {
+    sfxTap();
+    progress.tutorialSeen = true;
+    saveProgress();
+    overlay.remove();
   });
 }
 
 function shuffleWheel(){
-  const letters = gameState.letters;
-  for(let i = letters.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i+1));
-    [letters[i], letters[j]] = [letters[j], letters[i]];
-  }
+  gameState.letters = shuffleArray(gameState.letters);
   layoutWheel();
 }
 
@@ -1829,6 +2125,8 @@ function layoutWheel(){
   const n = gameState.letters.length;
   const cx = 120, cy = 120;
   const { radius, size, font } = wheelParams(n);
+  const ring = document.getElementById("wheelRing");
+  if(ring) ring.setAttribute("r", radius + size/2 + 6);
   gameState.positions = [];
   gameState.hitRadius = size / 2 + 6;
   gameState.letters.forEach((ch, i) => {
@@ -1846,6 +2144,7 @@ function layoutWheel(){
     el.style.marginLeft = (-size/2) + "px";
     el.style.marginTop = (-size/2) + "px";
     el.style.fontSize = font + "px";
+    el.style.setProperty("--i", i);
     el.dataset.index = i;
     wrap.appendChild(el);
   });
@@ -1908,6 +2207,14 @@ function attachWheelEvents(){
   window.addEventListener("pointercancel", endDrag);
 }
 
+function pulseRing(kind){
+  const ring = document.getElementById("wheelRing");
+  if(!ring) return;
+  ring.classList.remove("pulse-good", "pulse-bad");
+  void ring.offsetWidth; // animasyonu yeniden başlatmak için reflow tetikle
+  ring.classList.add(kind === "good" ? "pulse-good" : "pulse-bad");
+}
+
 function checkWord(word){
   if(!word || word.length < 2) return;
   const { level, found } = gameState;
@@ -1915,48 +2222,195 @@ function checkWord(word){
   if(level.words.includes(word)){
     found.add(word);
     sfxCorrect();
+    pulseRing("good");
+    const combo = awardWordScore();
+    showWordBanner(combo);
     setMethali();
     fillFoundWords();
-    const hud = document.getElementById("gameFullscreen").querySelector(".hud span:last-child");
-    if(hud) hud.textContent = `${found.size}/${gameState.sortedWords.length} maneno`;
-    if(found.size === level.words.length){
-      const stars = gameState.mistakes === 0 ? 3 : (gameState.mistakes <= 2 ? 2 : 1);
-      const key = gameState.world.id + "-" + gameState.lIdx;
-      const prevStars = progress.completed[key];
-      if(prevStars == null || stars > prevStars) progress.completed[key] = stars;
-      saveProgress();
-      setTimeout(() => { sfxWin(); renderEndScreen(stars); }, 450);
-    }
+    updateHud();
+    if(found.size === level.words.length) finishLevel();
   } else {
     gameState.mistakes++;
+    gameState.comboCount = 0; // hata serimi bozar
     sfxWrong();
+    pulseRing("bad");
     const wrap = document.getElementById("wheelWrap");
     wrap.classList.add("shake");
     setTimeout(() => wrap.classList.remove("shake"), 350);
   }
 }
 
+// Puan: kelime ne kadar hızlı bulunursa o kadar yüksek. Bir önceki bulunan kelimeden
+// (veya kiwango başlangıcından) bu yana geçen saniyeye göre azalan bir ölçek kullanır.
+// Aynı zamanda "combo" serisini takip eder: art arda 4 saniye içinde bulunan kelimeler
+// seri sayısını artırır, yavaş bulunan bir kelime seriyi sıfırlar.
+function awardWordScore(){
+  const now = Date.now();
+  const elapsedSec = (now - (gameState.lastEventTime || gameState.levelStartTime)) / 1000;
+  const points = Math.max(20, Math.round(150 - elapsedSec * 8));
+  gameState.levelScore = (gameState.levelScore || 0) + points;
+  progress.score = (progress.score || 0) + points;
+
+  if(elapsedSec <= 4 && (gameState.comboCount || 0) > 0){
+    gameState.comboCount = gameState.comboCount + 1;
+  } else {
+    gameState.comboCount = 1;
+  }
+  gameState.lastEventTime = now;
+  return gameState.comboCount;
+}
+
+const PRAISE_WORDS = ["Vizuri!", "Safi!", "Bora!", "Sawa kabisa!", "Nzuri!"];
+const COMBO_WORDS = ["Ajabu!", "Bomba sana!", "Kali sana!", "Fantastiki!", "Umeruka!"];
+
+// Doğru kelime bulununca kısa süreliğine beliren kurdeleli rozet — WoW'daki
+// "BRAVO" banner'ına benzer. combo>=2 ise daha büyük/parlak "combo" stiliyle
+// ve seri sayısıyla ("x3" gibi) gösterilir.
+function showWordBanner(combo){
+  const gf = document.getElementById("gameFullscreen");
+  if(!gf) return;
+  const isCombo = combo >= 2;
+  const base = isCombo
+    ? COMBO_WORDS[Math.floor(Math.random() * COMBO_WORDS.length)]
+    : PRAISE_WORDS[Math.floor(Math.random() * PRAISE_WORDS.length)];
+  const text = isCombo ? `${base} x${combo}` : base;
+  const el = document.createElement("div");
+  el.className = "word-banner" + (isCombo ? " combo" : "");
+  el.textContent = text;
+  gf.appendChild(el);
+  setTimeout(() => el.remove(), 1100);
+}
+
+function updateHud(){
+  const wordHud = document.getElementById("wordCountHud");
+  if(wordHud) wordHud.textContent = `${gameState.found.size}/${gameState.sortedWords.length} maneno`;
+  const hintBtn = document.getElementById("hintBtn");
+  if(hintBtn){
+    hintBtn.textContent = `💡 ${progress.hints || 0}`;
+    hintBtn.disabled = (progress.hints || 0) <= 0;
+  }
+}
+
+// DOM'da tek bir harfi "ipucu" stiliyle gösterir (grid hücresi ya da word-row kutusu).
+function revealLetterInDOM(word, index, ch){
+  const { level } = gameState;
+  if(level.grid){
+    const g = gameState.gridModel;
+    const placement = level.grid.find(p => p.word === word);
+    if(!placement) return;
+    const r = placement.row - g.minRow + (placement.dir === "V" ? index : 0);
+    const c = placement.col - g.minCol + (placement.dir === "H" ? index : 0);
+    const cell = document.getElementById("gameFullscreen").querySelector(`.grid-cell[data-r="${r}"][data-c="${c}"]`);
+    if(cell){ cell.textContent = ch; cell.classList.add("hint-revealed"); }
+    return;
+  }
+  const row = document.getElementById("gameFullscreen").querySelector(`.word-row[data-word="${word}"]`);
+  if(!row) return;
+  const box = row.querySelectorAll(".letter-box")[index];
+  if(box){ box.textContent = ch; box.classList.add("hint-revealed"); }
+}
+
+// Ipucu: sınırlı sayıda hak (progress.hints, oyun boyunca toplam) — her kullanımda
+// bulunmamış en kısa kelimenin bir sonraki açılmamış harfini gösterir. Bir kelimenin
+// tüm harfleri açılınca kelime otomatik çözülmüş sayılır (ama hız puanı kazanmaz).
+function useHint(){
+  if(!gameState || (progress.hints || 0) <= 0) { sfxWrong(); return; }
+  const remaining = gameState.sortedWords.filter(w => !gameState.found.has(w));
+  if(remaining.length === 0) return;
+  let target = null, idx = -1;
+  for(const w of remaining){
+    gameState.revealed[w] = gameState.revealed[w] || new Set();
+    if(gameState.revealed[w].size < w.length){
+      target = w;
+      idx = [...w].findIndex((_, i) => !gameState.revealed[w].has(i));
+      break;
+    }
+  }
+  if(target == null) return;
+  progress.hints--;
+  gameState.hintsUsedThisLevel = (gameState.hintsUsedThisLevel || 0) + 1;
+  gameState.revealed[target].add(idx);
+  saveProgress();
+  sfxTap();
+  pulseRing("good");
+  revealLetterInDOM(target, idx, target[idx]);
+  if(gameState.revealed[target].size === target.length){
+    gameState.found.add(target); // kelimenin tüm harfleri açıldı -> otomatik tamamlandı
+    fillFoundWords();
+  }
+  updateHud();
+  if(gameState.found.size === gameState.sortedWords.length) finishLevel();
+}
+
+function finishLevel(){
+  const flawless = gameState.mistakes === 0 && gameState.hintsUsedThisLevel === 0;
+  const stars = flawless ? 3 : (gameState.mistakes + gameState.hintsUsedThisLevel <= 2 ? 2 : 1);
+  if(!gameState.endless){
+    const key = gameState.world.id + "-" + gameState.lIdx;
+    const prevStars = progress.completed[key];
+    if(prevStars == null || stars > prevStars) progress.completed[key] = stars;
+  }
+  saveProgress();
+  setTimeout(() => { sfxWin(); renderEndScreen(stars); }, 450);
+}
+
+// Kiwango bitince küçük bir konfeti patlaması — yıldız sayısı arttıkça parça sayısı artar.
+function fireConfetti(container, stars){
+  if(!container) return;
+  const colors = ["var(--gold)", "var(--kanga-red)", "var(--ocean)", "#fff"];
+  const count = 14 + stars * 8;
+  for(let i = 0; i < count; i++){
+    const p = document.createElement("span");
+    p.className = "confetti-piece";
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 60 + Math.random() * 120;
+    p.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+    p.style.setProperty("--dy", `${Math.sin(angle) * dist - 40}px`);
+    p.style.setProperty("--rot", `${(Math.random()*720-360)}deg`);
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = `${Math.random()*0.12}s`;
+    container.appendChild(p);
+  }
+  setTimeout(() => { container.innerHTML = ""; }, 1400);
+}
+
 function renderEndScreen(stars){
-  const { world, lIdx, level } = gameState;
-  const hasNext = lIdx + 1 < world.levels.length;
+  const { world, lIdx, level, endless } = gameState;
   const gameFullscreen = document.getElementById("gameFullscreen");
+
+  let nextLabel, nextAction;
+  if(endless){
+    nextLabel = "Neno lingine →";
+    nextAction = () => (gameState.continueFn || startEndlessLevel)();
+  } else if(world && lIdx + 1 < world.levels.length){
+    nextLabel = "Neno linalofuata →";
+    nextAction = () => startLevel(gameState.wIdx, lIdx + 1);
+  } else if(world){
+    // dünyanın elle yazılmış seviyeleri bitti -> otomatik uzantıya geç
+    nextLabel = "Maneno Zaidi →";
+    nextAction = () => startWorldExtension(gameState.wIdx);
+  } else {
+    nextLabel = "Neno lingine →";
+    nextAction = () => startEndlessLevel();
+  }
+
   gameFullscreen.querySelector(".game-inner").innerHTML = `
     <div class="end-screen">
+      <div class="confetti-burst" id="confettiBurst"></div>
       <div class="eyebrow">Hongera!</div>
       <div class="big">${level.hero}</div>
       <div class="sub">umepata maneno yote — you found every word!</div>
       <div class="stars-earned">${"★".repeat(stars)}${"☆".repeat(3-stars)}</div>
-      ${hasNext ? `<button class="restart-btn" id="nextBtn">Kiwango kinachofuata →</button>` : `<button class="restart-btn" id="nextBtn">Ramani ya Dunia</button>`}
-      <button class="restart-btn ghost" id="mapBtn">Viwango vyote</button>
+      <div class="points-earned">+${gameState.levelScore || 0} pointi</div>
+      <button class="restart-btn" id="nextBtn">${nextLabel}</button>
+      <button class="restart-btn ghost" id="mapBtn">Ramani ya Dunia</button>
     </div>
   `;
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    sfxTap();
-    if(hasNext) startLevel(gameState.wIdx, lIdx + 1);
-    else { gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderWorldMap(); }
-  });
-  document.getElementById("mapBtn").addEventListener("click", () => {
-    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderLevelMap(gameState.wIdx);
+  fireConfetti(document.getElementById("confettiBurst"), stars);
+  document.getElementById("nextBtn").addEventListener("click", () => { sfxTap(); nextAction(); });
+  const mapBtn = document.getElementById("mapBtn");
+  if(mapBtn) mapBtn.addEventListener("click", () => {
+    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderWorldMap();
   });
 }
 
