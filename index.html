@@ -1195,7 +1195,7 @@ const card = document.getElementById("card");
 const methaliEl = document.getElementById("methali");
 function setMethali(){
   const m = METHALI[Math.floor(Math.random() * METHALI.length)];
-  methaliEl.textContent = `"${m[0]}" — ${m[1]}`;
+  methaliEl.textContent = `"${m[0]}"`;
 }
 setMethali();
 
@@ -1638,6 +1638,7 @@ function renderMenu(){
         <div class="brand-plank">Mchezo wa Maneno kwa Kiswahili</div>
         <div class="brand-tagline"><span class="w1">Jifunze.</span> <span class="w2">Fikiri.</span> <span class="w3">Shinda!</span></div>
         <button class="big-btn green" id="playBtn">▶ ${done > 0 ? "ENDELEA KUCHEZA" : "ANZA KUCHEZA"}</button>
+        <button class="big-btn secondary" id="infiniteBtn" style="color:#fff; border-color:rgba(255,255,255,0.6);">♾️ BILA MWISHO</button>
         <div class="progress-line">${done}/${total} viwango vimekamilika</div>
         <div class="icon-row">
           <button class="icon-btn" id="settingsBtn"><span class="ic">⚙️</span><span class="lb">Mipangilio</span></button>
@@ -1648,6 +1649,7 @@ function renderMenu(){
     </div>
   `;
   document.getElementById("playBtn").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
+  document.getElementById("infiniteBtn").addEventListener("click", () => { sfxTap(); startInfiniteMode(); });
   document.getElementById("settingsBtn").addEventListener("click", () => {
     sfxTap();
     showMiniPanel("Mipangilio", `
@@ -1663,7 +1665,7 @@ function renderMenu(){
   });
   document.getElementById("langBtn").addEventListener("click", () => {
     sfxTap();
-    showMiniPanel("Lugha", `<p style="margin:0;">Kiswahili + Kiingereza kwa sasa. Lugha zaidi zinakuja hivi karibuni — more languages coming soon.</p>`);
+    showMiniPanel("Lugha", `<p style="margin:0;">Kiswahili kwa sasa. Lugha zaidi zinakuja hivi karibuni.</p>`);
   });
   document.getElementById("statsBtn").addEventListener("click", () => {
     sfxTap();
@@ -1714,7 +1716,7 @@ function renderWorldMap(){
       <header>
         <div class="eyebrow">Ramani ya Dunia</div>
         <h1>Chagua Ulimwengu</h1>
-        <div class="subtitle">Choose a world to explore</div>
+        <div class="subtitle">Teua ulimwengu wa kuanza safari</div>
       </header>
       <button class="jump-btn" id="jumpBtn">📍 Nenda kwenye maendeleo yangu</button>
       <div class="world-path" id="worldPath"></div>
@@ -1784,7 +1786,7 @@ function renderLevelMap(wIdx){
     <header>
       <div class="eyebrow">${worldIconSVG(world.id, 16)} ${world.name}</div>
       <h1>Chagua Kiwango</h1>
-      <div class="subtitle">Pick a level</div>
+      <div class="subtitle">Bofya kiwango kuanza</div>
     </header>
     <div class="level-path" id="levelPath"></div>
   `;
@@ -1835,6 +1837,63 @@ function computeGrid(level){
   return { rows, cols, cellMap, minRow, minCol };
 }
 
+/* ================= LIVE INFINITE GENERATOR ================= */
+let INFINITE_BANK = null;
+function getInfiniteBank(){
+  if(INFINITE_BANK) return INFINITE_BANK;
+  const set = new Set();
+  WORLDS.forEach(w => w.levels.forEach(lvl => {
+    set.add(lvl.hero);
+    lvl.words.forEach(x => set.add(x));
+  }));
+  INFINITE_BANK = Array.from(set);
+  return INFINITE_BANK;
+}
+function letterCounts(s){
+  const m = {};
+  for(const ch of s) m[ch] = (m[ch] || 0) + 1;
+  return m;
+}
+function isSubMultiset(sub, full){
+  const cs = letterCounts(sub), cf = letterCounts(full);
+  for(const ch in cs){ if((cf[ch] || 0) < cs[ch]) return false; }
+  return true;
+}
+function generateGridForHero(hero, bank, maxExtra){
+  maxExtra = maxExtra || 6;
+  const candidates = bank.filter(w => w !== hero && w.length >= 2 && w.length < hero.length && isSubMultiset(w, hero));
+  candidates.sort((a, b) => b.length - a.length || (a < b ? -1 : 1));
+  const placements = [{ word: hero, row: 0, col: 0, dir: "H" }];
+  const colsUsed = new Set(), usedWords = new Set();
+  for(const w of candidates){
+    if(placements.length - 1 >= maxExtra) break;
+    if(usedWords.has(w)) continue;
+    let placed = false;
+    for(let i = 0; i < w.length && !placed; i++){
+      const ch = w[i];
+      for(let j = 0; j < hero.length; j++){
+        if(hero[j] === ch && !colsUsed.has(j)){
+          placements.push({ word: w, row: -i, col: j, dir: "V" });
+          colsUsed.add(j); usedWords.add(w); placed = true; break;
+        }
+      }
+    }
+  }
+  return placements;
+}
+function generateRandomPuzzle(){
+  const bank = getInfiniteBank();
+  const candidates = bank.filter(w => w.length >= 4);
+  let best = null;
+  for(let attempt = 0; attempt < 12; attempt++){
+    const hero = candidates[Math.floor(Math.random() * candidates.length)];
+    const placements = generateGridForHero(hero, bank, 6);
+    if(!best || placements.length > best.length) best = placements;
+    if(placements.length >= 3) break; // good enough, richer than a single word
+  }
+  return { hero: best[0].word, words: best.map(p => p.word), grid: best };
+}
+
 function startLevel(wIdx, lIdx){
   const world = WORLDS[wIdx];
   const level = world.levels[lIdx];
@@ -1843,6 +1902,29 @@ function startLevel(wIdx, lIdx){
   gameState = {
     wIdx, lIdx, world, level,
     letters: level.hero.split(""),
+    sortedWords,
+    found: new Set(),
+    path: [],
+    dragging: false,
+    positions: [],
+    mistakes: 0
+  };
+  renderGame();
+}
+
+let infiniteStreak = 0;
+function startInfiniteMode(){
+  infiniteStreak = 0;
+  nextInfinitePuzzle();
+}
+function nextInfinitePuzzle(){
+  const puzzle = generateRandomPuzzle();
+  const world = WORLDS[Math.floor(Math.random() * WORLDS.length)]; // random theme photo each round
+  const sortedWords = [...puzzle.words].sort((a,b) => a.length - b.length);
+  gameState = {
+    isInfinite: true, wIdx: -1, lIdx: -1, world,
+    level: { hero: puzzle.hero, words: puzzle.words, grid: puzzle.grid },
+    letters: puzzle.hero.split(""),
     sortedWords,
     found: new Set(),
     path: [],
@@ -1917,8 +1999,8 @@ function renderGame(){
     <div class="game-overlay"></div>
     <div class="game-content"><div class="game-inner">
       <div class="hud">
-        <span class="back-link" id="backLink">← viwango</span>
-        <span>${gameState.found.size}/${sortedWords.length} maneno</span>
+        <span class="back-link" id="backLink">← ${gameState.isInfinite ? "menyu" : "viwango"}</span>
+        <span>${gameState.isInfinite ? `♾️ ${infiniteStreak} | ` : ""}${gameState.found.size}/${sortedWords.length} maneno</span>
       </div>
       ${boardHtml}
       <div class="current-word" id="currentWord">&nbsp;</div>
@@ -1929,7 +2011,8 @@ function renderGame(){
     </div></div>
   `;
   document.getElementById("backLink").addEventListener("click", () => {
-    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderLevelMap(gameState.wIdx);
+    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = "";
+    if(gameState.isInfinite) renderMenu(); else renderLevelMap(gameState.wIdx);
   });
   document.getElementById("shuffleBtn").addEventListener("click", () => { sfxTap(); shuffleWheel(); });
 
@@ -2082,14 +2165,19 @@ function checkWord(word){
     setMethali();
     fillFoundWords();
     const hud = document.getElementById("gameFullscreen").querySelector(".hud span:last-child");
-    if(hud) hud.textContent = `${found.size}/${gameState.sortedWords.length} maneno`;
+    if(hud) hud.textContent = `${gameState.isInfinite ? `♾️ ${infiniteStreak} | ` : ""}${found.size}/${gameState.sortedWords.length} maneno`;
     if(found.size === level.words.length){
       const stars = gameState.mistakes === 0 ? 3 : (gameState.mistakes <= 2 ? 2 : 1);
-      const key = gameState.world.id + "-" + gameState.lIdx;
-      const prevStars = progress.completed[key];
-      if(prevStars == null || stars > prevStars) progress.completed[key] = stars;
-      saveProgress();
-      setTimeout(() => { sfxWin(); burstConfetti(60); renderEndScreen(stars); }, 450);
+      if(gameState.isInfinite){
+        infiniteStreak++;
+        setTimeout(() => { sfxWin(); burstConfetti(60); nextInfinitePuzzle(); }, 700);
+      } else {
+        const key = gameState.world.id + "-" + gameState.lIdx;
+        const prevStars = progress.completed[key];
+        if(prevStars == null || stars > prevStars) progress.completed[key] = stars;
+        saveProgress();
+        setTimeout(() => { sfxWin(); burstConfetti(60); renderEndScreen(stars); }, 450);
+      }
     }
   } else {
     gameState.mistakes++;
@@ -2108,7 +2196,7 @@ function renderEndScreen(stars){
     <div class="end-screen">
       <div class="eyebrow">Hongera!</div>
       <div class="big">${level.hero}</div>
-      <div class="sub">umepata maneno yote — you found every word!</div>
+      <div class="sub">umepata maneno yote!</div>
       <div class="stars-earned">${Array.from({length:3}, (_,i) => `<span style="animation-delay:${i*0.15}s">${i < stars ? "★" : "☆"}</span>`).join("")}</div>
       ${hasNext ? `<button class="restart-btn" id="nextBtn">Kiwango kinachofuata →</button>` : `<button class="restart-btn" id="nextBtn">Ramani ya Dunia</button>`}
       <button class="restart-btn ghost" id="mapBtn">Viwango vyote</button>
