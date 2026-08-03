@@ -2616,7 +2616,7 @@ function checkWord(word){
         const prevStars = progress.completed[key];
         if(prevStars == null || stars > prevStars) progress.completed[key] = stars;
         saveProgress();
-        setTimeout(() => { sfxWin(); burstConfetti(60); renderEndScreen(stars); }, 450);
+        setTimeout(() => { showLevelCompleteAndAdvance(stars); }, 450);
       }
     }
   } else {
@@ -2626,6 +2626,62 @@ function checkWord(word){
     wrap.classList.add("shake");
     setTimeout(() => wrap.classList.remove("shake"), 420);
   }
+}
+
+function showLevelCompleteAndAdvance(stars){
+  sfxWin(); burstConfetti(60);
+  const { world, wIdx, lIdx, level } = gameState;
+  const gameFullscreen = document.getElementById("gameFullscreen");
+  gameFullscreen.querySelector(".game-inner").innerHTML = `
+    <div class="end-screen">
+      <div class="eyebrow">Hongera!</div>
+      <div class="big">${level.hero}</div>
+      <div class="sub">umepata maneno yote!</div>
+      <div class="stars-earned">${Array.from({length:3}, (_,i) => `<span style="animation-delay:${i*0.15}s">${i < stars ? "★" : "☆"}</span>`).join("")}</div>
+    </div>
+  `;
+  fadeInEl(gameFullscreen.querySelector(".end-screen"));
+  const hasNextLevel = lIdx + 1 < world.levels.length;
+  const hasNextWorld = wIdx + 1 < WORLDS.length;
+  setTimeout(() => {
+    if(hasNextLevel) startLevel(wIdx, lIdx + 1);
+    else if(hasNextWorld) showWorldTransition(wIdx + 1);
+    else renderJourneyCompleteScreen();
+  }, 1600);
+}
+
+function showWorldTransition(nextWorldIdx){
+  const world = WORLDS[nextWorldIdx];
+  const gameFullscreen = document.getElementById("gameFullscreen");
+  gameFullscreen.querySelector(".game-inner").innerHTML = `
+    <div class="end-screen">
+      <div class="eyebrow">Ulimwengu mpya!</div>
+      <div class="big" style="font-size:2.6rem;">${world.icon} ${world.name}</div>
+      <div class="sub">Twende!</div>
+    </div>
+  `;
+  fadeInEl(gameFullscreen.querySelector(".end-screen"));
+  setTimeout(() => { startLevel(nextWorldIdx, 0); }, 1700);
+}
+
+function renderJourneyCompleteScreen(){
+  const gameFullscreen = document.getElementById("gameFullscreen");
+  gameFullscreen.querySelector(".game-inner").innerHTML = `
+    <div class="end-screen">
+      <div class="eyebrow">Hongera sana!</div>
+      <div class="big" style="font-size:2rem;">🏆 Umemaliza safari yote!</div>
+      <div class="sub">Umejifunza maneno yote ya Kiswahili katika mchezo huu!</div>
+      <button class="restart-btn" id="journeyMenuBtn">Rudi Menyu</button>
+      <button class="restart-btn ghost" id="journeyInfiniteBtn">♾️ Cheza Bila Mwisho</button>
+    </div>
+  `;
+  fadeInEl(gameFullscreen.querySelector(".end-screen"));
+  document.getElementById("journeyMenuBtn").addEventListener("click", () => {
+    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = ""; renderMenu();
+  });
+  document.getElementById("journeyInfiniteBtn").addEventListener("click", () => {
+    sfxTap(); startInfiniteMode();
+  });
 }
 
 function renderEndScreen(stars){
