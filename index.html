@@ -136,6 +136,21 @@
   .mini-panel .mp-title{ font-family: 'Fraunces', serif; font-weight: 700; font-size: 15px; margin-bottom: 6px; color: var(--ocean-dark); }
   .mini-panel .mp-close{ float: right; cursor: pointer; color: #8a7f6c; font-size: 12px; }
 
+  .confirm-overlay{
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; box-sizing: border-box;
+  }
+  .confirm-box{
+    background: var(--sand); border-radius: 16px; padding: 22px 20px;
+    max-width: 300px; width: 100%; text-align: center;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+  }
+  .confirm-box .confirm-title{ font-family: 'Fraunces', serif; font-weight: 700; font-size: 18px; color: var(--ocean-dark); margin-bottom: 18px; }
+  .confirm-box .confirm-actions{ display: flex; gap: 10px; }
+  .confirm-box .confirm-actions .ctrl-btn{ flex: 1; }
+
   header{ text-align: center; margin-bottom: 16px; }
   .eyebrow{ font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--kanga-red); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .eyebrow svg{ width: 16px; height: 16px; color: var(--kanga-red); }
@@ -1549,6 +1564,41 @@ const METHALI = [
 
 /* ================= STATE ================= */
 let progress = { soundOn: true, completed: {}, streak: 0, lastPlayDate: null, giftClaimedDate: null }; // completed["worldId-levelIdx"] = starCount
+
+/* ================= HARDWARE BACK BUTTON GUARD (main menu only) ================= */
+let onMainMenu = false;
+let backGuardPushed = false;
+function armMenuBackGuard(){
+  if(backGuardPushed) return;
+  history.pushState({ nenoMenuGuard: true }, "", location.href);
+  backGuardPushed = true;
+}
+window.addEventListener("popstate", () => {
+  backGuardPushed = false; // the one tracked history entry, if any, was just consumed
+  if(!onMainMenu) return; // don't intercept back-navigation on other screens
+  armMenuBackGuard(); // re-arm immediately so the app stays open until the player confirms
+  const overlay = document.createElement("div");
+  overlay.className = "confirm-overlay";
+  overlay.innerHTML = `
+    <div class="confirm-box">
+      <div class="confirm-title">Utoke kwenye mchezo?</div>
+      <div class="confirm-actions">
+        <button class="ctrl-btn" id="menuExitCancelBtn">Endelea</button>
+        <button class="ctrl-btn" id="menuExitConfirmBtn" style="background:var(--kanga-red); color:#fff; border-color:var(--kanga-red);">Toka</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector("#menuExitCancelBtn").addEventListener("click", () => {
+    sfxTap(); overlay.remove();
+  });
+  overlay.querySelector("#menuExitConfirmBtn").addEventListener("click", () => {
+    sfxTap(); overlay.remove();
+    onMainMenu = false;
+    backGuardPushed = false;
+    history.back();
+  });
+});
 let gameState = null;
 const STORAGE_KEY = "swahili-game-progress-v1";
 
@@ -2028,6 +2078,9 @@ function totalStats(){
 
 /* ================= MENU ================= */
 function renderMenu(){
+  cleanupWheelHandlers();
+  onMainMenu = true;
+  armMenuBackGuard();
   gameState = null;
   const gf = document.getElementById("gameFullscreen");
   if(gf){ gf.classList.remove("active"); gf.innerHTML = ""; }
@@ -2121,6 +2174,8 @@ function showMiniPanel(title, bodyHtml, container){
 
 /* ================= WORLD MAP ================= */
 function renderWorldMap(){
+  cleanupWheelHandlers();
+  onMainMenu = false;
   stopMenuAmbience();
   const giftAvailable = progress.giftClaimedDate !== todayStr();
   const gf = document.getElementById("gameFullscreen");
@@ -2203,6 +2258,8 @@ function renderWorldMap(){
 
 /* ================= LEVEL MAP ================= */
 function renderLevelMap(wIdx){
+  cleanupWheelHandlers();
+  onMainMenu = false;
   const gf = document.getElementById("gameFullscreen");
   if(gf){ gf.classList.remove("active"); gf.innerHTML = ""; }
   const wmf = document.getElementById("worldMapFull");
@@ -2345,6 +2402,7 @@ function startLevel(wIdx, lIdx){
 
 let infiniteStreak = 0;
 function startInfiniteMode(){
+  onMainMenu = false;
   stopMenuAmbience();
   infiniteStreak = 0;
   nextInfinitePuzzle();
@@ -2463,22 +2521,23 @@ function renderGame(){
   `;
   gameFullscreen.querySelector("#backLink").addEventListener("click", () => {
     sfxTap();
-    showMiniPanel("Utoke kwenye kiwango?", `
-      <p style="margin:0 0 10px;">Maendeleo yako ya kiwango hiki hayatahifadhiwa ukitoka sasa.</p>
-      <div style="display:flex; gap:8px; justify-content:flex-end;">
-        <button class="ctrl-btn" id="exitCancelBtn">Endelea Kucheza</button>
-        <button class="ctrl-btn" id="exitConfirmBtn" style="background:var(--kanga-red); color:#fff; border-color:var(--kanga-red);">Toka</button>
+    const overlay = document.createElement("div");
+    overlay.className = "confirm-overlay";
+    overlay.innerHTML = `
+      <div class="confirm-box">
+        <div class="confirm-title">Utoke?</div>
+        <div class="confirm-actions">
+          <button class="ctrl-btn" id="exitCancelBtn">Endelea</button>
+          <button class="ctrl-btn" id="exitConfirmBtn" style="background:var(--kanga-red); color:#fff; border-color:var(--kanga-red);">Toka</button>
+        </div>
       </div>
-    `);
-    document.getElementById("exitCancelBtn").addEventListener("click", () => {
-      sfxTap();
-      const p = document.querySelector(".mini-panel");
-      if(p) p.remove();
+    `;
+    gameFullscreen.appendChild(overlay);
+    overlay.querySelector("#exitCancelBtn").addEventListener("click", () => {
+      sfxTap(); overlay.remove();
     });
-    document.getElementById("exitConfirmBtn").addEventListener("click", () => {
-      sfxTap();
-      const p = document.querySelector(".mini-panel");
-      if(p) p.remove();
+    overlay.querySelector("#exitConfirmBtn").addEventListener("click", () => {
+      sfxTap(); overlay.remove();
       gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = "";
       if(gameState.isInfinite) renderMenu(); else renderLevelMap(gameState.wIdx);
     });
@@ -2567,6 +2626,13 @@ function layoutWheel(){
 }
 
 let currentWheelHandlers = null; // tracks the active global listeners so old ones don't pile up
+function cleanupWheelHandlers(){
+  if(currentWheelHandlers){
+    window.removeEventListener("pointerup", currentWheelHandlers.endDrag);
+    window.removeEventListener("pointercancel", currentWheelHandlers.endDrag);
+    currentWheelHandlers = null;
+  }
+}
 
 function attachWheelEvents(){
   const wrap = document.getElementById("wheelWrap");
