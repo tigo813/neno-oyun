@@ -2462,8 +2462,26 @@ function renderGame(){
     </div></div>
   `;
   document.getElementById("backLink").addEventListener("click", () => {
-    sfxTap(); gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = "";
-    if(gameState.isInfinite) renderMenu(); else renderLevelMap(gameState.wIdx);
+    sfxTap();
+    showMiniPanel("Utoke kwenye kiwango?", `
+      <p style="margin:0 0 10px;">Maendeleo yako ya kiwango hiki hayatahifadhiwa ukitoka sasa.</p>
+      <div style="display:flex; gap:8px; justify-content:flex-end;">
+        <button class="ctrl-btn" id="exitCancelBtn">Endelea Kucheza</button>
+        <button class="ctrl-btn" id="exitConfirmBtn" style="background:var(--kanga-red); color:#fff; border-color:var(--kanga-red);">Toka</button>
+      </div>
+    `);
+    document.getElementById("exitCancelBtn").addEventListener("click", () => {
+      sfxTap();
+      const p = document.querySelector(".mini-panel");
+      if(p) p.remove();
+    });
+    document.getElementById("exitConfirmBtn").addEventListener("click", () => {
+      sfxTap();
+      const p = document.querySelector(".mini-panel");
+      if(p) p.remove();
+      gameFullscreen.classList.remove("active"); gameFullscreen.innerHTML = "";
+      if(gameState.isInfinite) renderMenu(); else renderLevelMap(gameState.wIdx);
+    });
   });
   document.getElementById("shuffleBtn").addEventListener("click", () => { sfxTap(); shuffleWheel(); });
 
