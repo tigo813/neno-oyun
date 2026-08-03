@@ -2153,7 +2153,7 @@ function renderWorldMap(){
       <div class="world-path" id="worldPath"></div>
     </div></div>
   `;
-  document.getElementById("backLink").addEventListener("click", () => {
+  wmf.querySelector("#backLink").addEventListener("click", () => {
     sfxTap(); wmf.classList.remove("active"); wmf.innerHTML = ""; renderMenu();
   });
   document.getElementById("giftBtn").addEventListener("click", () => {
@@ -2222,7 +2222,7 @@ function renderLevelMap(wIdx){
     <div class="level-path" id="levelPath"></div>
   `;
   renderSoundToggle();
-  document.getElementById("backLink").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
+  card.querySelector("#backLink").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
 
   const path = document.getElementById("levelPath");
   world.levels.forEach((lvl, i) => {
@@ -2461,7 +2461,7 @@ function renderGame(){
       <div class="controls"><button class="ctrl-btn" id="shuffleBtn">🔀 Changanya</button></div>
     </div></div>
   `;
-  document.getElementById("backLink").addEventListener("click", () => {
+  gameFullscreen.querySelector("#backLink").addEventListener("click", () => {
     sfxTap();
     showMiniPanel("Utoke kwenye kiwango?", `
       <p style="margin:0 0 10px;">Maendeleo yako ya kiwango hiki hayatahifadhiwa ukitoka sasa.</p>
