@@ -169,6 +169,17 @@
   /* ---- World map ---- */
   .back-row{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .back-link{ font-size: 13px; color: #8a7f6c; cursor: pointer; text-decoration: underline; }
+  .hud .back-link, .worldmap-content .back-row .back-link{
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.18); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.4); color: #fff !important;
+    padding: 7px 14px; border-radius: 20px; text-decoration: none !important;
+    text-shadow: none; box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .hud .back-link:active, .worldmap-content .back-row .back-link:active{
+    background: rgba(255,255,255,0.32); transform: scale(0.96);
+  }
 
   .stat-row{ display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
   .streak-badge{
@@ -2124,7 +2135,7 @@ function renderWorldMap(){
     <div class="worldmap-overlay"></div>
     <div class="worldmap-content"><div class="worldmap-inner">
       <div class="back-row">
-        <span class="back-link" id="backLink">← menyu</span>
+        <span class="back-link" id="backLink" style="background:#D9A441D9; border-color:#D9A441; box-shadow:0 4px 12px #D9A44166;">← menyu</span>
         <span></span>
       </div>
       <div class="stat-row">
@@ -2199,7 +2210,7 @@ function renderLevelMap(wIdx){
   const world = WORLDS[wIdx];
   card.innerHTML = `
     <div class="back-row">
-      <span class="back-link" id="backLink">← dunia</span>
+        <span class="back-link" id="backLink">← dunia</span>
       <span></span>
     </div>
     ${renderBanner(world.accent, world.id)}
@@ -2439,7 +2450,7 @@ function renderGame(){
     <div class="game-overlay"></div>
     <div class="game-content"><div class="game-inner">
       <div class="hud">
-        <span class="back-link" id="backLink">← ${gameState.isInfinite ? "menyu" : "viwango"}</span>
+        <span class="back-link" id="backLink" style="background:${world.accent}D9; border-color:${world.accent}; box-shadow:0 4px 12px ${world.accent}66;">← ${gameState.isInfinite ? "menyu" : "viwango"}</span>
         <span>${gameState.isInfinite ? `♾️ ${infiniteStreak} | ` : ""}${gameState.found.size}/${sortedWords.length} maneno</span>
       </div>
       ${boardHtml}
