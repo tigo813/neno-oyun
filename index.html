@@ -2391,7 +2391,7 @@ function startLevel(wIdx, lIdx){
   // letters bag: use the letters of the hero word (covers all shorter subwords by construction)
   gameState = {
     wIdx, lIdx, world, level,
-    letters: level.hero.split(""),
+    letters: shuffleArray(level.hero.split("")),
     sortedWords,
     found: new Set(),
     path: [],
@@ -2416,7 +2416,7 @@ function nextInfinitePuzzle(){
   gameState = {
     isInfinite: true, wIdx: -1, lIdx: -1, world,
     level: { hero: puzzle.hero, words: puzzle.words, grid: puzzle.grid },
-    letters: puzzle.hero.split(""),
+    letters: shuffleArray(puzzle.hero.split("")),
     sortedWords,
     found: new Set(),
     path: [],
@@ -2574,6 +2574,15 @@ function fillFoundWords(){
     const boxes = row.querySelectorAll(".letter-box");
     [...w].forEach((ch, i) => { boxes[i].textContent = ch; boxes[i].classList.add("filled"); });
   });
+}
+
+function shuffleArray(arr){
+  const a = [...arr];
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function shuffleWheel(){
