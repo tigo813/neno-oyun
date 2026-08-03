@@ -2135,7 +2135,7 @@ function renderWorldMap(){
     <div class="worldmap-overlay"></div>
     <div class="worldmap-content"><div class="worldmap-inner">
       <div class="back-row">
-        <span class="back-link" id="backLink" style="background:#D9A441D9; border-color:#D9A441; box-shadow:0 4px 12px #D9A44166;">← menyu</span>
+        <span class="back-link" id="backLink">← menyu</span>
         <span></span>
       </div>
       <div class="stat-row">
@@ -2450,7 +2450,7 @@ function renderGame(){
     <div class="game-overlay"></div>
     <div class="game-content"><div class="game-inner">
       <div class="hud">
-        <span class="back-link" id="backLink" style="background:${world.accent}D9; border-color:${world.accent}; box-shadow:0 4px 12px ${world.accent}66;">← ${gameState.isInfinite ? "menyu" : "viwango"}</span>
+        <span class="back-link" id="backLink">← ${gameState.isInfinite ? "menyu" : "viwango"}</span>
         <span>${gameState.isInfinite ? `♾️ ${infiniteStreak} | ` : ""}${gameState.found.size}/${sortedWords.length} maneno</span>
       </div>
       ${boardHtml}
