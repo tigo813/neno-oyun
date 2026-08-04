@@ -460,6 +460,18 @@ const STORAGE_KEY = "swahili-game-progress-v1";
 
 const card = document.getElementById("card");
 const methaliEl = document.getElementById("methali");
+const METHALI = [
+  ["Haraka haraka haina baraka.", "Haste has no blessing."],
+  ["Polepole ndiyo mwendo.", "Slowly slowly is the way to go."],
+  ["Asiyefunzwa na mamaye hufunzwa na ulimwengu.", "One not taught by their mother is taught by the world."],
+  ["Elimu ni ufunguo wa maisha.", "Education is the key to life."],
+  ["Umoja ni nguvu, utengano ni udhaifu.", "Unity is strength, division is weakness."],
+  ["Mtaka cha mvunguni sharti ainame.", "Whoever wants something under the bed must bend down."],
+  ["Chukua hatua moja moja.", "Take it one step at a time."],
+  ["Bahati haiji mara mbili.", "Luck does not come twice."],
+  ["Subira huvuta heri.", "Patience attracts good fortune."],
+  ["Mwenda pole hajikwai.", "Slow walker does not stumble."]
+];
 function setMethali(){
   const m = METHALI[Math.floor(Math.random() * METHALI.length)];
   methaliEl.textContent = `"${m[0]}"`;
