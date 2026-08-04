@@ -270,6 +270,11 @@
   .level-info{ flex: 1; text-align: left; min-width: 0; }
   .level-word{ font-family: 'Fraunces', serif; font-weight: 700; font-size: 14px; color: var(--ocean-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .level-stars{ font-size: 12px; color: var(--gold); letter-spacing: 1px; }
+  .level-thumb{
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0; overflow: hidden;
+    background: rgba(13,92,99,0.08);
+  }
+  .level-thumb img{ width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* ---- Game screen: true full-viewport, breaks out of the kanga frame ---- */
   .game-fullscreen{ position: fixed; inset: 0; z-index: 100; display: none; background: var(--ocean-dark); }
@@ -1150,13 +1155,23 @@ function renderLevelMap(wIdx){
   card.querySelector("#backLink").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
 
   const path = document.getElementById("levelPath");
+  const rawWorldPhoto = WORLD_PHOTOS[world.id];
+  const isRotatingPhoto = Array.isArray(rawWorldPhoto);
+  function pickLevelThumb(i){
+    if(LOCAL_PHOTOS[world.id]) return LOCAL_PHOTOS[world.id];
+    if(isRotatingPhoto) return pexelsUrl(rawWorldPhoto[i % rawWorldPhoto.length], 100);
+    if(rawWorldPhoto) return pexelsUrl(rawWorldPhoto, 100);
+    return null;
+  }
   world.levels.forEach((lvl, i) => {
     const unlocked = isLevelUnlocked(wIdx, i);
     const stars = progress.completed[world.id+"-"+i];
+    const thumbSrc = unlocked ? pickLevelThumb(i) : null;
     const node = document.createElement("div");
     node.className = "level-node" + (unlocked ? "" : " locked") + (i % 2 === 0 ? " align-left" : " align-right");
     node.innerHTML = `
       <div class="level-num">${unlocked ? (i+1) : "🔒"}</div>
+      ${thumbSrc ? `<div class="level-thumb"><img src="${thumbSrc}" alt="" loading="lazy" onerror="this.parentElement.remove()"></div>` : ""}
       <div class="level-info">
         <div class="level-word">${unlocked ? lvl.hero : "??????"}</div>
         <div class="level-stars">${stars != null ? "★".repeat(stars) + "☆".repeat(3-stars) : (unlocked ? (lvl.words.length>1 ? lvl.words.length+" maneno" : "") : "")}</div>
