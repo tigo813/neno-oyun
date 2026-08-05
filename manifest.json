@@ -1,15 +1,18 @@
 {
-  "name": "Neno — Mchezo wa Maneno kwa Kiswahili",
+  "name": "Neno - Kiswahili Kelime Oyunu",
   "short_name": "Neno",
-  "description": "Gurudumu la maneno la Kiswahili — jifunze, fikiri, shinda! A Swahili word-wheel game.",
-  "start_url": "./index.html",
-  "id": "./index.html",
-  "scope": "./",
+  "description": "Gurudumu la maneno la Kiswahili — jifunze, fikiri, shinda!",
+  "start_url": "/neno-oyun/",
+  "scope": "/neno-oyun/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#073338",
+  "background_color": "#0D5C63",
   "theme_color": "#B3373A",
   "lang": "sw",
+  "categories": [
+    "games",
+    "education"
+  ],
   "icons": [
     {
       "src": "icon-192.png",
@@ -21,13 +24,7 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-512-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ]
 }
