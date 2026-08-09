@@ -430,6 +430,29 @@
     border: 1.5px solid rgba(13,92,99,0.3); border-radius: 8px; padding: 8px 16px; cursor: pointer; color: var(--ocean-dark);
   }
   .ctrl-btn:hover{ border-color: var(--ocean); }
+  .menu-exit-btn{
+    position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px; z-index: 20;
+    width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.75);
+    background: var(--kanga-red); color: #fff; font-size: 17px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+  }
+  .menu-exit-btn:active{ transform: scale(0.92); }
+  .controls{ display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .ctrl-btn-ad{ background: var(--gold); border-color: var(--gold); color: var(--ocean-dark); }
+  .ctrl-btn-ad:disabled{ opacity: 0.55; cursor: default; }
+  .grid-cell.hinted, .letter-box.hinted{ background: rgba(217,164,65,0.35) !important; border: 1.5px dashed var(--gold) !important; color: var(--ocean-dark) !important; }
+  .ad-mock-overlay{
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ad-mock-box{ background: #fff; border-radius: 14px; padding: 28px 36px; text-align: center; }
+  .ad-mock-spinner{
+    width: 34px; height: 34px; border: 4px solid rgba(13,92,99,0.2); border-top-color: var(--ocean);
+    border-radius: 50%; margin: 0 auto 12px; animation: adSpin 0.8s linear infinite;
+  }
+  @keyframes adSpin{ to{ transform: rotate(360deg); } }
+  .ad-mock-text{ font-family: 'Work Sans', sans-serif; font-size: 14px; color: var(--ocean-dark); font-weight: 600; }
 
   .shake{ animation: shake 0.4s ease; }
   @keyframes shake{
@@ -495,10 +518,14 @@ function armMenuBackGuard(){
   history.pushState({ nenoMenuGuard: true }, "", location.href);
   backGuardPushed = true;
 }
-window.addEventListener("popstate", () => {
-  backGuardPushed = false; // the one tracked history entry, if any, was just consumed
-  if(!onMainMenu) return; // don't intercept back-navigation on other screens
-  armMenuBackGuard(); // re-arm immediately so the app stays open until the player confirms
+function performExit(){
+  // TWA/PWA olarak yüklü uygulamalarda en güvenilir çıkış yöntemi:
+  // önce window.close() dene, olmazsa geçmiş yığınının tamamını geriye sar —
+  // bu Android'in "geri yığını bitti" davranışını tetikleyip uygulamayı kapatır.
+  try { window.close(); } catch(e){}
+  try { history.go(-(history.length + 5)); } catch(e){}
+}
+function showExitConfirmDialog(){
   const overlay = document.createElement("div");
   overlay.className = "confirm-overlay";
   overlay.innerHTML = `
@@ -517,9 +544,14 @@ window.addEventListener("popstate", () => {
   overlay.querySelector("#menuExitConfirmBtn").addEventListener("click", () => {
     sfxTap(); overlay.remove();
     onMainMenu = false;
-    backGuardPushed = false;
-    history.back();
+    performExit();
   });
+}
+window.addEventListener("popstate", () => {
+  backGuardPushed = false; // the one tracked history entry, if any, was just consumed
+  if(!onMainMenu) return; // don't intercept back-navigation on other screens
+  armMenuBackGuard(); // re-arm immediately so the app stays open until the player confirms
+  showExitConfirmDialog();
 });
 let gameState = null;
 const STORAGE_KEY = "swahili-game-progress-v1";
@@ -1181,6 +1213,7 @@ function renderMenu(){
         <circle class="sparkle" cx="150" cy="172" r="1.8" style="animation-delay:2.8s"/>
       </svg>
       <div class="menu-overlay"></div>
+      <button class="menu-exit-btn" id="menuExitBtn" aria-label="Toka">✕</button>
       <div class="menu-content">
         <div class="tile-field">
           <div class="wood-tile" style="left:6%; top:2px; color:#2e7d32; --rot:-8deg; animation-delay:0s;">K</div>
@@ -1207,6 +1240,7 @@ function renderMenu(){
     </div>
   `;
   document.getElementById("playBtn").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
+  document.getElementById("menuExitBtn").addEventListener("click", () => { sfxTap(); showExitConfirmDialog(); });
   document.getElementById("infiniteBtn").addEventListener("click", () => { sfxTap(); startInfiniteMode(); });
   document.getElementById("settingsBtn").addEventListener("click", () => {
     sfxTap();
@@ -1499,7 +1533,8 @@ function startLevel(wIdx, lIdx){
     path: [],
     dragging: false,
     positions: [],
-    mistakes: 0
+    mistakes: 0,
+    hintedPositions: new Set()
   };
   renderGame();
 }
@@ -1524,7 +1559,8 @@ function nextInfinitePuzzle(){
     path: [],
     dragging: false,
     positions: [],
-    mistakes: 0
+    mistakes: 0,
+    hintedPositions: new Set()
   };
   renderGame();
 }
@@ -1626,7 +1662,10 @@ function renderGame(){
       <div class="wheel-wrap" id="wheelWrap">
         <svg id="wheelSvg" viewBox="0 0 240 240"><polyline id="pathLine" points="" fill="none" stroke="${getComputedStyle(document.documentElement).getPropertyValue('--gold')}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="controls"><button class="ctrl-btn" id="shuffleBtn">🔀 Changanya</button></div>
+      <div class="controls">
+        <button class="ctrl-btn" id="shuffleBtn">🔀 Changanya</button>
+        <button class="ctrl-btn ctrl-btn-ad" id="hintBtn">📺 Tazama tangazo → Herufi</button>
+      </div>
     </div></div>
   `;
   gameFullscreen.querySelector("#backLink").addEventListener("click", () => {
@@ -1653,6 +1692,8 @@ function renderGame(){
     });
   });
   document.getElementById("shuffleBtn").addEventListener("click", () => { sfxTap(); shuffleWheel(); });
+  const hintBtn = document.getElementById("hintBtn");
+  if(hintBtn) hintBtn.addEventListener("click", () => { requestHintViaAd(); });
 
   fillFoundWords();
   layoutWheel();
@@ -1834,6 +1875,83 @@ function highlightFoundWord(word){
     setTimeout(() => cell.classList.remove("recall-flash"), 600);
   });
 }
+/* ===================== REKLAM İLE İPUCU SİSTEMİ ===================== */
+// showRewardedAd: gerçek reklam SDK'sı burada devreye girecek.
+// Şimdilik: reklam SDK'sı bağlanana kadar geliştirme/test amaçlı sahte bir
+// "reklam gösteriliyor" ekranı gösterir, ardından ödülü verir.
+// Gerçek entegrasyon: bu fonksiyonun içini AdMob/Google Ad Manager rewarded
+// ad çağrısıyla değiştir; reklam başarıyla izlenince onReward() çağrılmalı,
+// izlenmez/iptal edilirse hiçbir şey çağrılmamalı (ödül verilmez).
+window.showRewardedAd = function(onReward){
+  const overlay = document.createElement("div");
+  overlay.className = "ad-mock-overlay";
+  overlay.innerHTML = `
+    <div class="ad-mock-box">
+      <div class="ad-mock-spinner"></div>
+      <div class="ad-mock-text">Tangazo linapakia…</div>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    overlay.remove();
+    onReward();
+  }, 1500);
+};
+
+function requestHintViaAd(){
+  const { level, found } = gameState;
+  const nextWord = level.words.find(w => !found.has(w));
+  if(!nextWord){ return; }
+  const hintBtn = document.getElementById("hintBtn");
+  if(hintBtn) hintBtn.disabled = true;
+  showRewardedAd(() => {
+    const revealed = revealHintLetter();
+    if(hintBtn) hintBtn.disabled = false;
+    if(revealed) sfxTap();
+  });
+}
+
+function revealHintLetter(){
+  const { level, found, hintedPositions } = gameState;
+  if(!hintedPositions) return false;
+  const root = document.getElementById("gameFullscreen");
+  const nextWord = level.words.find(w => !found.has(w));
+  if(!nextWord) return false;
+  if(level.grid){
+    const g = gameState.gridModel;
+    const placement = level.grid.find(p => p.word === nextWord);
+    if(!placement || !g) return false;
+    for(let i = 0; i < nextWord.length; i++){
+      const r = placement.row - g.minRow + (placement.dir === "V" ? i : 0);
+      const c = placement.col - g.minCol + (placement.dir === "H" ? i : 0);
+      const key = r + "," + c;
+      if(hintedPositions.has(key)) continue;
+      const cell = root.querySelector(`.grid-cell[data-r="${r}"][data-c="${c}"]`);
+      if(cell && !cell.classList.contains("filled")){
+        cell.textContent = nextWord[i];
+        cell.classList.add("hinted");
+        hintedPositions.add(key);
+        return true;
+      }
+    }
+  } else {
+    const row = root.querySelector(`.word-row[data-word="${nextWord}"]`);
+    if(!row) return false;
+    const boxes = Array.from(row.querySelectorAll(".letter-box"));
+    for(let i = 0; i < boxes.length; i++){
+      const key = nextWord + "-" + i;
+      if(hintedPositions.has(key)) continue;
+      if(!boxes[i].classList.contains("filled")){
+        boxes[i].textContent = nextWord[i];
+        boxes[i].classList.add("hinted");
+        hintedPositions.add(key);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+/* =================== /REKLAM İLE İPUCU SİSTEMİ ==================== */
+
 function checkWord(word){
   if(!word || word.length < 2) return;
   const { level, found } = gameState;
