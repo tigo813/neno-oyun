@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.tigo813.neno",
-        "sha256_cert_fingerprints": ["6D:D1:B8:0A:02:5A:03:F3:D2:05:28:D7:4A:0F:6A:D4:F3:2A:87:17:88:B3:A2:5C:A5:B7:8F:CB:D5:A1:7A:15"]
+        "sha256_cert_fingerprints": ["A3:1B:32:85:77:D2:DB:63:20:F9:3C:45:00:4B:D5:3E:56:FB:3A:80:8D:F5:80:7A:48:A5:43:3B:56:95:D1:9F"]
       }
     }]
