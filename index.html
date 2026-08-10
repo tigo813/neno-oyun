@@ -430,14 +430,6 @@
     border: 1.5px solid rgba(13,92,99,0.3); border-radius: 8px; padding: 8px 16px; cursor: pointer; color: var(--ocean-dark);
   }
   .ctrl-btn:hover{ border-color: var(--ocean); }
-  .menu-exit-btn{
-    position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px; z-index: 20;
-    width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.75);
-    background: var(--kanga-red); color: #fff; font-size: 17px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.35);
-  }
-  .menu-exit-btn:active{ transform: scale(0.92); }
   .controls{ display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
   .ctrl-btn-ad{ background: var(--gold); border-color: var(--gold); color: var(--ocean-dark); }
   .ctrl-btn-ad:disabled{ opacity: 0.55; cursor: default; }
@@ -518,13 +510,6 @@ function armMenuBackGuard(){
   history.pushState({ nenoMenuGuard: true }, "", location.href);
   backGuardPushed = true;
 }
-function performExit(){
-  // TWA/PWA olarak yüklü uygulamalarda en güvenilir çıkış yöntemi:
-  // önce window.close() dene, olmazsa geçmiş yığınının tamamını geriye sar —
-  // bu Android'in "geri yığını bitti" davranışını tetikleyip uygulamayı kapatır.
-  try { window.close(); } catch(e){}
-  try { history.go(-(history.length + 5)); } catch(e){}
-}
 function showExitConfirmDialog(){
   const overlay = document.createElement("div");
   overlay.className = "confirm-overlay";
@@ -544,7 +529,8 @@ function showExitConfirmDialog(){
   overlay.querySelector("#menuExitConfirmBtn").addEventListener("click", () => {
     sfxTap(); overlay.remove();
     onMainMenu = false;
-    performExit();
+    backGuardPushed = false;
+    history.back();
   });
 }
 window.addEventListener("popstate", () => {
@@ -1213,7 +1199,6 @@ function renderMenu(){
         <circle class="sparkle" cx="150" cy="172" r="1.8" style="animation-delay:2.8s"/>
       </svg>
       <div class="menu-overlay"></div>
-      <button class="menu-exit-btn" id="menuExitBtn" aria-label="Toka">✕</button>
       <div class="menu-content">
         <div class="tile-field">
           <div class="wood-tile" style="left:6%; top:2px; color:#2e7d32; --rot:-8deg; animation-delay:0s;">K</div>
@@ -1240,7 +1225,6 @@ function renderMenu(){
     </div>
   `;
   document.getElementById("playBtn").addEventListener("click", () => { sfxTap(); renderWorldMap(); });
-  document.getElementById("menuExitBtn").addEventListener("click", () => { sfxTap(); showExitConfirmDialog(); });
   document.getElementById("infiniteBtn").addEventListener("click", () => { sfxTap(); startInfiniteMode(); });
   document.getElementById("settingsBtn").addEventListener("click", () => {
     sfxTap();
