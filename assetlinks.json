@@ -1,8 +1,8 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.tigo813.neno",
-        "sha256_cert_fingerprints": ["C3:AF:67:3A:31:68:EB:B7:7A:42:0A:C3:E3:F4:FB:E6:54:76:48:38:4B:E8:30:7D:E5:89:35:3E:83:D8:35:B6"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.tigo813.nenoapp",
+    "sha256_cert_fingerprints": ["9E:83:C3:BA:62:B7:42:C1:D0:9B:05:D1:34:77:7D:0F:69:D2:EF:68:EC:81:EA:B7:4D:74:4A:BE:32:12:4F:BE"]
+  }
+}]
