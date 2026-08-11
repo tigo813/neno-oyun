@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.tigo813.neno",
+        "sha256_cert_fingerprints": ["C3:AF:67:3A:31:68:EB:B7:7A:42:0A:C3:E3:F4:FB:E6:54:76:48:38:4B:E8:30:7D:E5:89:35:3E:83:D8:35:B6"]
+      }
+    }]
